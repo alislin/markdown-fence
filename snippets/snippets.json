@@ -1,0 +1,20 @@
+{
+    "Fence Block": {
+        "prefix": "fence:start",
+        "body": [
+            "<!-- fence:start -->",
+            "$1",
+            "<!-- fence -->",
+            "$2",
+            "<!-- fence:end -->"
+        ],
+        "description": "Create a new fence block container"
+    },
+    "Fence Split": {
+        "prefix": "fence",
+        "body": [
+            "<!-- fence -->"
+        ],
+        "description": "Add a new split point in fence block"
+    }
+}

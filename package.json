@@ -1,0 +1,71 @@
+{
+  "name": "markdown-fence",
+  "displayName": "Markdown Fence Extension",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "markdown.markdownItPlugins": true,
+    "commands": [
+      {
+        "command": "extension.exportToHTML",
+        "title": "Export to HTML"
+      },
+      {
+        "command": "extension.exportToPDF",
+        "title": "Export to PDF"
+      },
+      {
+        "command": "extension.insertFence",
+        "title": "Insert Fence Block",
+        "category": "Markdown Fence"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "extension.insertFence",
+          "when": "editorLangId == markdown"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./snippets/snippets.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "p-test": "tsx ./src/test.ts"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.97.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.19.0",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0",
+    "puppeteer": "^24.2.1"
+  }
+}
