@@ -1,7 +1,5 @@
 // test.ts
 import MarkdownIt from "markdown-it";
-import splitPlugin from "./splitPlugin";
-import fenceBlockPlugin from "./fenceBlockPlugin";
 import fencePlugin from "./fencePlugin";
 
 

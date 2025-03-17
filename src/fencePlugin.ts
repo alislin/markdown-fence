@@ -44,7 +44,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
       const token = state.push('custom_fence', 'div', 0);
       token.attrSet('class', 'fence-block');
       token.map = [startLine, currentLine];
-      token.content = items.join('\n<!-- split -->\n');
+      token.content = items.join(`\n<!-- ${FENCE_SPLIT} -->\n`);
       token.block = true;
 
       state.line = currentLine + 1;
@@ -55,7 +55,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
   md.renderer.rules.custom_fence = (tokens, idx) => {
     const content = tokens[idx].content;
-    const items = content.split('\n<!-- split -->\n');
+    const items = content.split(`\n<!-- ${FENCE_SPLIT} -->\n`);
     
     const renderedItems = items.map(item => {
       // 使用 markdown-it 单独解析每个区块

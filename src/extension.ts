@@ -109,6 +109,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 async function exportDocument(format: 'html' | 'pdf') {
 	// 实现导出逻辑
+	console.log(`export ${format}`);
+	
 }
 
 async function renderMarkdown(filePath: string): Promise<string> {

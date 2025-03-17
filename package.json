@@ -41,11 +41,15 @@
         "language": "markdown",
         "path": "./snippets/snippets.json"
       }
+    ],
+    "markdown.previewStyles": [
+      "./out/fence.css"
     ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && npm run copy-css",
+    "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
@@ -61,11 +65,11 @@
     "@typescript-eslint/parser": "^8.22.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "copyfiles": "^2.4.1",
     "eslint": "^9.19.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "markdown-it": "^14.1.0",
-    "puppeteer": "^24.2.1"
+    "markdown-it": "^14.1.0"
   }
 }
