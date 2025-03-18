@@ -53,7 +53,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./ && npm run copy-css && npm run copy-snippets",
+    "compile": "tsc -p ./",
     "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
     "copy-snippets": "copyfiles ./snippets/**/*.json ./out -u 1",
     "watch": "tsc -watch -p ./",
