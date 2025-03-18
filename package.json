@@ -1,7 +1,7 @@
 {
   "name": "markdown-fence",
   "displayName": "Markdown Fence Extension",
-  "description": "",
+  "description": "Markdown tiling is supported. The matching style can be displayed in multiple columns",
   "publisher": "Zero Circle",
   "repository": {
     "type": "git",
