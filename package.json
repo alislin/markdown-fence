@@ -2,6 +2,11 @@
   "name": "markdown-fence",
   "displayName": "Markdown Fence Extension",
   "description": "",
+  "publisher": "alis.lin@outlook.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alislin/markdown-fence.git"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
@@ -39,17 +44,18 @@
     "snippets": [
       {
         "language": "markdown",
-        "path": "./snippets/snippets.json"
+        "path": "./snippets1/snippets.json"
       }
     ],
     "markdown.previewStyles": [
-      "./out/fence.css"
+      "./css/fence.css"
     ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./ && npm run copy-css",
+    "compile": "tsc -p ./ && npm run copy-css && npm run copy-snippets",
     "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
+    "copy-snippets": "copyfiles ./snippets/**/*.json ./out -u 1",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",

@@ -2,8 +2,8 @@
  * @Author: Lin Ya
  * @Date: 2025-02-20 17:17:55
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-02-21 09:37:49
- * @Description: markdown split
+ * @LastEditTime: 2025-03-18 09:06:21
+ * @Description: markdown fence
  */
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -17,11 +17,76 @@ import * as path from 'path';
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	// 注册预览处理器
-	// const disposable = vscode.workspace.registerTextDocumentContentProvider('markdown-fence', {
+	// const disposable = vscode.workspace.registerTextDocumentContentProvider('markdown', {
 	// 	provideTextDocumentContent: (uri: vscode.Uri) => {
 	// 		return renderMarkdown(uri.fsPath);
 	// 	}
 	// });
+	// context.subscriptions.push(disposable);
+
+	// 注册代码片段
+	const snippetProvider = vscode.languages.registerCompletionItemProvider(
+		'markdown',
+		{
+			provideCompletionItems(document, position) {
+				console.log(position);
+				
+				const fenceStartSnippet = new vscode.CompletionItem('fence:start');
+				fenceStartSnippet.insertText = new vscode.SnippetString(
+					'<!-- fence:start -->\n$1\n<!-- fence -->\n$2\n<!-- fence:end -->'
+				);
+				fenceStartSnippet.documentation = 'Create a fence block container';
+
+				const fenceSplitSnippet = new vscode.CompletionItem('fence');
+				fenceSplitSnippet.insertText = new vscode.SnippetString('<!-- fence -->');
+				fenceSplitSnippet.documentation = 'Add a split point in fence block';
+
+				return [fenceStartSnippet, fenceSplitSnippet];
+			}
+		},
+		// ':' // 触发字符（根据需要调整）
+	);
+
+	// const snippetProvider = vscode.languages.registerCompletionItemProvider(
+	// 	'markdown',
+	// 	{
+	// 	  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+	// 		// 获取光标前的文本
+	// 		const linePrefix = document.lineAt(position).text.slice(0, position.character);
+	// 		console.log(linePrefix);
+			
+	// 		// 匹配前缀（如 "fence:"）
+	// 		if (linePrefix.endsWith('fence:')) {
+	// 		  // 计算替换范围（覆盖 "fence:"）
+	// 		  const startPos = position.translate(0, -6); // 向前移动6个字符（"fence:"的长度）
+	// 		  const range = new vscode.Range(startPos, position);
+	
+	// 		  // 创建代码片段项
+	// 		  const fenceStartSnippet = new vscode.CompletionItem('start');
+	// 		  fenceStartSnippet.insertText = new vscode.SnippetString(
+	// 			'<!-- fence:start -->\n$1\n<!-- fence -->\n$2\n<!-- fence:end -->'
+	// 		  );
+	// 		  fenceStartSnippet.range = range; // 设置替换范围
+	// 		  fenceStartSnippet.documentation = 'Create a fence block container';
+	
+	// 		  return [fenceStartSnippet];
+	// 		}
+	
+	// 		// 匹配其他前缀（如 "fence"）
+	// 		if (linePrefix.endsWith('fence')) {
+	// 		  const fenceSplitSnippet = new vscode.CompletionItem('split');
+	// 		  fenceSplitSnippet.insertText = new vscode.SnippetString('<!-- fence -->');
+	// 		  fenceSplitSnippet.documentation = 'Add a split point in fence block';
+	// 		  return [fenceSplitSnippet];
+	// 		}
+	
+	// 		return null;
+	// 	  }
+	// 	},
+	// 	':'
+	//   );
+
+	context.subscriptions.push(snippetProvider);
 
 	// return
 	// 注册导出命令
@@ -110,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
 async function exportDocument(format: 'html' | 'pdf') {
 	// 实现导出逻辑
 	console.log(`export ${format}`);
-	
+
 }
 
 async function renderMarkdown(filePath: string): Promise<string> {

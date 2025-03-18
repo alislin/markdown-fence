@@ -8,13 +8,15 @@
             "$2",
             "<!-- fence:end -->"
         ],
-        "description": "Create a new fence block container"
+        "description": "Create a new fence block container",
+        "scope": "markdown"
     },
     "Fence Split": {
         "prefix": "fence",
         "body": [
             "<!-- fence -->"
         ],
-        "description": "Add a new split point in fence block"
+        "description": "Add a new split point in fence block",
+        "scope": "markdown"
     }
 }
