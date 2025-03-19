@@ -61,9 +61,15 @@ export async function exportDocument(format: 'html' | 'pdf') {
 async function imageToBase64(imagePath: string): Promise<string> {
 	try {
 		const data = await fs.promises.readFile(imagePath);
-		const base64 = data.toString('base64');
-		const mimeType = path.extname(imagePath) === '.png' ? 'image/png' : 'image/jpeg';
-		return `data:${mimeType};base64,${base64}`;
+		const ext = path.extname(imagePath).toLowerCase();
+
+		if (ext === '.svg') {
+			return data.toString('utf8'); // 直接读取 SVG 文件内容
+		} else {
+			const base64 = data.toString('base64');
+			const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+			return `data:${mimeType};base64,${base64}`;
+		}
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Failed to convert image to base64: ${error.message}`);
 		return '';
@@ -101,21 +107,32 @@ async function markdownRender() {
 		const htmlContent = md.render(content);
 
 		// 匹配所有 img 标签
-		const imgTags = [...htmlContent.matchAll(/<img src="(.*?)"/g)];
+		const imgTags = [...htmlContent.matchAll(/<img src="(.*?)"(.*?>)/g)];
 
 		// 并行将所有图片转换为 base64 编码
 		const base64Images = await Promise.all(
 			imgTags.map(async (match) => {
 				const src = match[1];
-				const base64 = await imageToBase64(path.join(path.dirname(filePath), src));
-				return { match: match[0], base64 };
+				const imagePath = path.join(path.dirname(filePath), src);
+				const ext = path.extname(imagePath).toLowerCase();
+				let replacement = '';
+
+				if (ext === '.svg') {
+					// 直接读取 SVG 文件内容
+					replacement = await imageToBase64(imagePath);
+					return { match: match[0], replacement };
+				} else {
+					const base64 = await imageToBase64(imagePath);
+					replacement = `<img src="${base64}"${match[2]}`;
+					return { match: match[0], replacement };
+				}
 			})
 		);
 
-		// 将 base64 编码的图片替换到 HTML 中
+		// 将图片替换到 HTML 中
 		let newHtmlContent = htmlContent;
 		base64Images.forEach((item) => {
-			newHtmlContent = newHtmlContent.replace(item.match, `<img src="${item.base64}"`);
+			newHtmlContent = newHtmlContent.replace(item.match, item.replacement);
 		});
 
 		// 获取 VSCode Markdown 样式
