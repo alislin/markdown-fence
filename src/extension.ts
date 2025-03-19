@@ -16,14 +16,6 @@ import * as path from 'path';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	// 注册预览处理器
-	// const disposable = vscode.workspace.registerTextDocumentContentProvider('markdown', {
-	// 	provideTextDocumentContent: (uri: vscode.Uri) => {
-	// 		return renderMarkdown(uri.fsPath);
-	// 	}
-	// });
-	// context.subscriptions.push(disposable);
-
 	// 注册代码片段
 	const snippetProvider = vscode.languages.registerCompletionItemProvider(
 		'markdown',
@@ -46,45 +38,6 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 		// ':' // 触发字符（根据需要调整）
 	);
-
-	// const snippetProvider = vscode.languages.registerCompletionItemProvider(
-	// 	'markdown',
-	// 	{
-	// 	  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-	// 		// 获取光标前的文本
-	// 		const linePrefix = document.lineAt(position).text.slice(0, position.character);
-	// 		console.log(linePrefix);
-			
-	// 		// 匹配前缀（如 "fence:"）
-	// 		if (linePrefix.endsWith('fence:')) {
-	// 		  // 计算替换范围（覆盖 "fence:"）
-	// 		  const startPos = position.translate(0, -6); // 向前移动6个字符（"fence:"的长度）
-	// 		  const range = new vscode.Range(startPos, position);
-	
-	// 		  // 创建代码片段项
-	// 		  const fenceStartSnippet = new vscode.CompletionItem('start');
-	// 		  fenceStartSnippet.insertText = new vscode.SnippetString(
-	// 			'<!-- fence:start -->\n$1\n<!-- fence -->\n$2\n<!-- fence:end -->'
-	// 		  );
-	// 		  fenceStartSnippet.range = range; // 设置替换范围
-	// 		  fenceStartSnippet.documentation = 'Create a fence block container';
-	
-	// 		  return [fenceStartSnippet];
-	// 		}
-	
-	// 		// 匹配其他前缀（如 "fence"）
-	// 		if (linePrefix.endsWith('fence')) {
-	// 		  const fenceSplitSnippet = new vscode.CompletionItem('split');
-	// 		  fenceSplitSnippet.insertText = new vscode.SnippetString('<!-- fence -->');
-	// 		  fenceSplitSnippet.documentation = 'Add a split point in fence block';
-	// 		  return [fenceSplitSnippet];
-	// 		}
-	
-	// 		return null;
-	// 	  }
-	// 	},
-	// 	':'
-	//   );
 
 	context.subscriptions.push(snippetProvider);
 
@@ -233,38 +186,6 @@ async function exportDocument(format: 'html' | 'pdf') {
 		vscode.window.showInformationMessage(`成功导出 HTML 文件到 ${htmlPath}`);
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`导出 HTML 文件失败: ${error.message}`);
-	}
-}
-
-async function renderMarkdown(filePath: string): Promise<string> {
-	try {
-		// 读取原始 Markdown 内容
-		const content = await fs.promises.readFile(filePath, 'utf8');
-
-		// 创建带插件的 MarkdownIt 实例
-		const md = new MarkdownIt().use(fencePlugin);
-
-		// 获取样式内容
-		// const cssPath = path.join(context.extensionPath, 'css', 'fence.css');
-		const cssPath = path.join(__dirname, '../css/fence.css');
-		const styles = await fs.promises.readFile(cssPath, 'utf8');
-		console.log("css:", cssPath, styles);
-
-		// 生成完整 HTML
-		return `<!DOCTYPE html>
-  <html>
-  <head>
-  	<base href="${vscode.Uri.file(path.dirname(filePath)).with({ scheme: 'vscode-resource' })}/">
-	<style>${styles}</style>
-  </head>
-  <body>
-	${md.render(content)}
-  </body>
-  </html>`;
-	} catch (error) {
-		console.error('样式加载失败:', error);
-		// return `<!-- 样式加载失败 -->${md.render(content)}`;
-		return `Error rendering markdown: ${error}`;
 	}
 }
 
