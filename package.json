@@ -45,7 +45,7 @@
     "snippets": [
       {
         "language": "markdown",
-        "path": "./snippets1/snippets.json"
+        "path": "./snippets/snippets.json"
       }
     ],
     "markdown.previewStyles": [

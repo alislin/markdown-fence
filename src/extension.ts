@@ -2,7 +2,7 @@
  * @Author: Lin Ya
  * @Date: 2025-02-20 17:17:55
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-18 09:06:21
+ * @LastEditTime: 2025-03-19 11:55:35
  * @Description: markdown fence
  */
 // The module 'vscode' contains the VS Code extensibility API
@@ -173,9 +173,67 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 async function exportDocument(format: 'html' | 'pdf') {
-	// 实现导出逻辑
-	console.log(`export ${format}`);
+	if (format !== 'html') {
+		vscode.window.showErrorMessage('仅支持导出 HTML 格式');
+		return;
+	}
 
+	// 获取当前活动的文本编辑器
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		vscode.window.showErrorMessage('没有打开的 Markdown 文档');
+		return;
+	}
+
+	if (editor.document.languageId !== 'markdown') {
+		vscode.window.showErrorMessage('当前文档不是 Markdown 文档');
+		return;
+	}
+
+	const filePath = editor.document.uri.fsPath;
+	const fileName = path.basename(filePath, '.md');
+	const htmlPath = path.join(path.dirname(filePath), `${fileName}.html`);
+
+	try {
+		// 读取 Markdown 文档内容
+		const content = await fs.promises.readFile(filePath, 'utf8');
+
+		// 创建带插件的 MarkdownIt 实例
+		const md = new MarkdownIt().use(fencePlugin);
+
+		// 获取样式内容
+		const cssPath = path.join(__dirname, '../css/fence.css');
+		const styles = await fs.promises.readFile(cssPath, 'utf8');
+
+		// 渲染 Markdown 为 HTML
+				const htmlContent = md.render(content);
+		
+				// 获取 VSCode Markdown 样式
+				const markdownStyles: any[] | undefined = vscode.workspace.getConfiguration('markdown').get('styles');
+				const markdownStyleLinks = markdownStyles ? markdownStyles.map(style => `<link rel="stylesheet" href="${style}">`).join('\n') : '';
+		
+				// 构建完整的 HTML 文件
+				const fullHtml = `<!DOCTYPE html>
+				<html>
+				<head>
+					<meta charset="UTF-8">
+					<title>${fileName}</title>
+					<style>${styles}</style>
+					${markdownStyleLinks}
+				</head>
+				<body>
+					${htmlContent}
+				</body>
+				</html>`;
+		
+				// 将 HTML 文件写入磁盘
+				await fs.promises.writeFile(htmlPath, fullHtml, 'utf8');
+
+		// 显示成功消息
+		vscode.window.showInformationMessage(`成功导出 HTML 文件到 ${htmlPath}`);
+	} catch (error: any) {
+		vscode.window.showErrorMessage(`导出 HTML 文件失败: ${error.message}`);
+	}
 }
 
 async function renderMarkdown(filePath: string): Promise<string> {
