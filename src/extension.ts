@@ -10,7 +10,6 @@
 import * as vscode from 'vscode';
 import MarkdownIt from 'markdown-it';
 import fencePlugin from './fencePlugin';
-import hljs from 'highlight.js';
 import { exportDocument } from './exportDocument';
 
 // This method is called when your extension is activated
@@ -22,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			provideCompletionItems(document, position) {
 				console.log(position);
-				
+
 				const fenceStartSnippet = new vscode.CompletionItem('fence:start');
 				fenceStartSnippet.insertText = new vscode.SnippetString(
 					'<!-- fence:start -->\n$1\n<!-- fence -->\n$2\n<!-- fence:end -->'
@@ -51,9 +50,6 @@ export function activate(context: vscode.ExtensionContext) {
 			await exportDocument('pdf');
 		})
 	);
-
-	const diagnosticCollection = vscode.languages.createDiagnosticCollection('markdownFence');
-	context.subscriptions.push(diagnosticCollection);
 
 	// 文档变更监听器
 	vscode.workspace.onDidChangeTextDocument(event => {
@@ -113,7 +109,10 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		});
 
+		const diagnosticCollection = vscode.languages.createDiagnosticCollection('markdownFence');
 		diagnosticCollection.set(document.uri, diagnostics);
+		context.subscriptions.push(diagnosticCollection);
+
 	}
 
 	// 增强 Markdown 预览
