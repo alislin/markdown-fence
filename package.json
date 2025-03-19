@@ -22,11 +22,11 @@
     "commands": [
       {
         "command": "extension.exportToHTML",
-        "title": "Export to HTML"
+        "title": "Markdown Fence: Export to HTML"
       },
       {
         "command": "extension.exportToPDF",
-        "title": "Export to PDF"
+        "title": "Markdown Fence: Export to PDF"
       },
       {
         "command": "extension.insertFence",
