@@ -4,7 +4,11 @@ vscode extension "markdown-fence".
 
 ## Features
 Use markers to split into multi-column styles
+- `<!-- fence:start -->`
+- `<!-- fence -->`
+- `<!-- fence:end -->`
 
+markdown content:
 ```markdown
 <!-- fence:start -->
 ## 这是左边开始的内容
@@ -16,7 +20,7 @@ Use markers to split into multi-column styles
 <!-- fence:end -->
 ```
 
-after render
+after render:
 ```html
 <div class="fence-block">
     <div class="fence-item">
