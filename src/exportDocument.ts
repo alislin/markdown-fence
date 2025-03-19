@@ -60,7 +60,8 @@ export async function exportDocument(format: 'html' | 'pdf') {
 
 async function imageToBase64(imagePath: string): Promise<string> {
 	try {
-		const data = await fs.promises.readFile(imagePath);
+		const encodedImagePath = encodeURIComponent(imagePath);
+		const data = await fs.promises.readFile(decodeURIComponent(encodedImagePath));
 		const ext = path.extname(imagePath).toLowerCase();
 
 		if (ext === '.svg') {
@@ -113,8 +114,9 @@ async function markdownRender() {
 		const base64Images = await Promise.all(
 			imgTags.map(async (match) => {
 				const src = match[1];
-				const imagePath = path.join(path.dirname(filePath), src);
-				const ext = path.extname(imagePath).toLowerCase();
+				let imagePath = path.join(path.dirname(filePath), src);
+				imagePath = decodeURIComponent(imagePath);
+				const ext = path.extname(decodeURIComponent(imagePath)).toLowerCase();
 				let replacement = '';
 
 				if (ext === '.svg') {
