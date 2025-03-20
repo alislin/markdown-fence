@@ -8,21 +8,19 @@ vscode extension "markdown fence".
 ![](https://alislin.github.io/markdown-fence/assets/img/README_20250320-092003.png)
 
 ## 功能 Features
+<!-- fence:start -->
+### 标记语法
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
 - `<!-- fence:start -->`
 - `<!-- fence -->`
 - `<!-- fence:end -->`
 
+<!-- fence -->
 ### 导出
 支持 html,pdf 两种格式
 - `Markdown Fence: Export to HTML`
 - `Markdown Fence: Export to PDF`
-
-<!-- fence:start -->
-Left bar
-<!-- fence -->
-<--- this row
 <!-- fence:end -->
 
 markdown 内容如下  
