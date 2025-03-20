@@ -16,5 +16,6 @@ assets/**
 public/**
 build/**
 docs/**
+test/**
 **/docsify
 .nojekyll

@@ -1,0 +1,18 @@
+<div class="fence-block">
+<div class="fence-item"><p>markdown 内容如下<br>markdown content:</p><pre v-pre="" data-lang="markdown"><code class="lang-markdown"><span class="token comment">&lt;!-- fence:start --&gt;</span>
+    ## 这是左边开始的内容
+    1. 第一行
+    2. 第二行
+    <span class="token comment">&lt;!-- fence --&gt;</span>
+    ## 右边标题
+    横向分隔
+    <span class="token comment">&lt;!-- fence:end --&gt;</span></code></pre>
+</div>
+<div class="fence-item"><p data-line="0" class="code-line" dir="auto">预览<br>
+after render:</p>
+<pre><code data-line="2" class="code-line language-html code-active-line" dir="auto"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"fence-block"</span>&gt;</span>
+test
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+</div>
+</div>

@@ -19,25 +19,33 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
       let currentLine = startLine;
       const items: string[] = [];
       let currentItem: string[] = [];
+      let inCodeBlock = false;
 
       // 扫描直到结束标记
       while (currentLine++ < endLine) {
         const lineStart = state.bMarks[currentLine] + state.tShift[currentLine];
         const lineEnd = state.eMarks[currentLine];
         const lineContent = state.src.slice(lineStart, lineEnd);
-
-        if (lineContent.startsWith(`<!-- ${FENCE_END} -->`)) {
-          items.push(currentItem.join('\n'));
-          break;
+        let lineContentWithoutIndent = lineContent.trimStart();
+        if (lineContentWithoutIndent.startsWith('```')) {
+          // Toggle inCodeBlock flag
+          inCodeBlock = !inCodeBlock;
         }
 
-        if (lineContent.startsWith(`<!-- ${FENCE_SPLIT} -->`)) {
-          items.push(currentItem.join('\n'));
-          currentItem = [];
-          continue;
+        if (!inCodeBlock) {
+          if (lineContent.startsWith(`<!-- ${FENCE_END} -->`)) {
+            items.push(currentItem.join('\n'));
+            break;
+          }
+
+          if (lineContent.startsWith(`<!-- ${FENCE_SPLIT} -->`)) {
+            items.push(currentItem.join('\n'));
+            currentItem = [];
+            continue;
+          }
         }
 
-        currentItem.push(state.src.slice(state.bMarks[currentLine], state.eMarks[currentLine]));
+        currentItem.push(lineContent);
       }
 
       // 生成 Token
@@ -59,7 +67,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     
     const renderedItems = items.map(item => {
       // 使用 markdown-it 单独解析每个区块
-      return `<div class="fence-item">${md.render(item.trim())}</div>`;
+      return `<div class="fence-item">${md.render(item)}</div>`;
     }).join('\n');
 
     return `<div class="fence-block">\n${renderedItems}\n</div>`;

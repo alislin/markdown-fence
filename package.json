@@ -60,10 +60,9 @@
     "veradd": "node build/verAdd.js",
     "package": "vsce package",
     "watch": "tsc -watch -p ./",
+    "test": "vscode-test",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test",
-    "p-test": "tsx ./src/test.ts",
     "doc:deploy": "npm run compile && node build/docDeploy.js"
   },
   "devDependencies": {
