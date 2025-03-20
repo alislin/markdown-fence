@@ -4,12 +4,20 @@ vscode extension "markdown-fence".
 
 ![](https://alislin.github.io/markdown-fence/assets/img/README_20250320-092003.png)
 
-## Features
+## 功能 Features
+使用下面标记进行分隔  
 Use markers to split into multi-column styles
 - `<!-- fence:start -->`
 - `<!-- fence -->`
 - `<!-- fence:end -->`
 
+<!-- fence:start -->
+Left bar
+<!-- fence -->
+<--- this row
+<!-- fence:end -->
+
+markdown 内容如下  
 markdown content:
 ```markdown
 <!-- fence:start -->
@@ -22,6 +30,7 @@ markdown content:
 <!-- fence:end -->
 ```
 
+预览  
 after render:
 ```html
 <div class="fence-block">
@@ -39,4 +48,49 @@ after render:
     </div>
 </div>
 ```
+## 样式 style
+可以根据自己的需要编写样式覆盖
+```css
+.fence-block {
 
+}
+
+.fence-item {
+
+}
+```
+
+## docsify 插件支持
+Markdown Fence 也提供了docsify支持。按下面添加插件即可使用
+
+```diff
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Markdown Fence</title>
+  <meta keyword="" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Markdown Fence" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/themes/vue.css" />
++  <link rel="stylesheet" href="https://alislin.github.io/markdown-fence/css/fence.css" />
+</head>
+
+<body>
+  <div id="app"></div>
++  <script src="https://alislin.github.io/markdown-fence/out/docsify/fence.js"></script>
+  <script>
+    var num = 0;
+    window.$docsify = {
+      name: 'Markdown Fence',
+      repo: '',
++      plugins:[fence]
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+</body>
+
+</html>
+```
