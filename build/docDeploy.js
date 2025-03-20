@@ -37,8 +37,8 @@ async function deploy() {
       '*.md',
       'assets/**/*',
       'css/**/*',
+      'media/**/*',
       `${outDir}/**/*`,
-      'html/**/*',
     ];
 
     // 循环复制目标
