@@ -1,6 +1,9 @@
-# Markdown-Fence
+# Markdown Fence
 
-vscode extension "markdown-fence". 
+![](/media/markdown-fence-128.png)
+
+vscode 扩展 Markdown Fence  
+vscode extension "markdown fence". 
 
 ![](https://alislin.github.io/markdown-fence/assets/img/README_20250320-092003.png)
 
