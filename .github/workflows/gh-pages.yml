@@ -38,6 +38,8 @@ jobs:
         uses: npm run doc:deploy@v1
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
 
   # Deployment job
   deploy:
