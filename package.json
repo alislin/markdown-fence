@@ -62,7 +62,9 @@
     "lint": "eslint src",
     "package": "vsce package",
     "test": "vscode-test",
-    "p-test": "tsx ./src/test.ts"
+    "p-test": "tsx ./src/test.ts",
+    "doc:deploy": "node build/docDeploy.js",
+    "doc:postpush": "npm run doc:deploy"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
