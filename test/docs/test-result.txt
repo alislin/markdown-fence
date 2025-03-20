@@ -1,0 +1,14 @@
+输入文档
+<!-- fence:start -->
+1
+<!-- fence -->
+2
+<!-- fence:end -->
+
+正确结果
+<div class="fence-block">
+<div class="fence-item"><p>1</p>
+</div>
+<div class="fence-item"><p>2</p>
+</div>
+</div>
