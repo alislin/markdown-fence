@@ -16,6 +16,8 @@ Use markers to split into multi-column styles
 
 ### 导出
 支持 html,pdf 两种格式
+- `Markdown Fence: Export to HTML`
+- `Markdown Fence: Export to PDF`
 
 <!-- fence:start -->
 Left bar
