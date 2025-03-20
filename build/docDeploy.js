@@ -15,6 +15,7 @@ async function deploy() {
 
     // 复制目标列表，支持通配符
     const copyTargets = [
+      '.nojekyll',
       '*.md',
       'assets/**/*',
       `${outDir}/**/*`,
