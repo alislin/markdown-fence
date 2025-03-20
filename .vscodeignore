@@ -1,5 +1,7 @@
 .vscode/**
 .vscode-test/**
+.mise/**
+.github/**
 src/**
 .gitignore
 .yarnrc
@@ -9,6 +11,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+**/*.scss
 assets/**
 public/**
 build/**

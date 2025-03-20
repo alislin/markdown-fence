@@ -8,7 +8,7 @@
     "url": "https://github.com/alislin/markdown-fence.git"
   },
   "icon": "media/markdown-fence-128.png",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -57,14 +57,14 @@
     "compile": "tsc -p ./",
     "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
     "copy-snippets": "copyfiles ./snippets/**/*.json ./out -u 1",
+    "veradd": "node build/verAdd.js",
+    "package": "vsce package",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "package": "vsce package",
     "test": "vscode-test",
     "p-test": "tsx ./src/test.ts",
-    "doc:deploy": "node build/docDeploy.js",
-    "doc:postpush": "npm run doc:deploy"
+    "doc:deploy": "node build/docDeploy.js"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

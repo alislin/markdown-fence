@@ -2,7 +2,7 @@
 
 vscode extension "markdown-fence". 
 
-![](assets/img/README_20250320-092003.png)
+![](https://alislin.github.io/markdown-fence/assets/img/README_20250320-092003.png)
 
 ## Features
 Use markers to split into multi-column styles
