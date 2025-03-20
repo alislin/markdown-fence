@@ -100,5 +100,5 @@ Markdown Fence 也提供了docsify支持。按下面添加插件即可使用
 
 ## Obisdian 支持
 - [ ] 计划中
-## Marpin 支持
+## Marp 支持
 - [ ] 计划中
