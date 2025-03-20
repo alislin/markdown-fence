@@ -14,6 +14,9 @@ Use markers to split into multi-column styles
 - `<!-- fence -->`
 - `<!-- fence:end -->`
 
+### 导出
+支持 html,pdf 两种格式
+
 <!-- fence:start -->
 Left bar
 <!-- fence -->
@@ -98,7 +101,8 @@ Markdown Fence 也提供了docsify支持。按下面添加插件即可使用
 </html>
 ```
 
-## Obisdian 支持
-- [ ] 计划中
-## Marp 支持
-- [ ] 计划中
+<!-- ## Obisdian 支持
+- [ ] 计划中 -->
+
+<!-- ## Marp 支持
+- [ ] 计划中 -->
