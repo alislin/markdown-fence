@@ -114,10 +114,10 @@ function replaceKeyValue(text: string | undefined, keyList: { [key: string]: str
 	return text;
 }
 
-async function imageToBase64(imagePath: string): Promise<string> {
+async function imageToBase64(imagePath: string, filePath: string): Promise<string> {
 	try {
-		const encodedImagePath = encodeURIComponent(imagePath);
-		const data = await fs.promises.readFile(decodeURIComponent(encodedImagePath));
+		// const data = await fs.promises.readFile(decodeURIComponent(encodedImagePath));
+		const data = await loadImageFile(imagePath, filePath);
 		const ext = path.extname(imagePath).toLowerCase();
 
 		if (ext === '.svg') {
@@ -130,6 +130,21 @@ async function imageToBase64(imagePath: string): Promise<string> {
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Failed to convert image to base64: ${error.message}`);
 		return '';
+	}
+}
+
+async function loadImageFile(imagePath: string, filePath: string) {
+	const fetch = await import('node-fetch').then(m => m.default);
+	// 检测 encodedImagePath 是否网络文件，如果是网络文件使用node-fetch下载
+	const decodedImagePath = decodeURIComponent(imagePath);
+	if (decodedImagePath.startsWith('http://') || decodedImagePath.startsWith('https://')) {
+		const response = await fetch(imagePath);
+		const buffer = await response.buffer();
+		return buffer;
+	} else {
+		let src = path.join(path.dirname(filePath), imagePath);
+		const decodedImagePath = decodeURIComponent(src);
+		return await fs.promises.readFile(decodedImagePath);
 	}
 }
 
@@ -170,17 +185,15 @@ async function markdownRender() {
 		const base64Images = await Promise.all(
 			imgTags.map(async (match) => {
 				const src = match[1];
-				let imagePath = path.join(path.dirname(filePath), src);
-				imagePath = decodeURIComponent(imagePath);
-				const ext = path.extname(decodeURIComponent(imagePath)).toLowerCase();
+				const ext = path.extname(decodeURIComponent(src)).toLowerCase();
 				let replacement = '';
 
 				if (ext === '.svg') {
 					// 直接读取 SVG 文件内容
-					replacement = await imageToBase64(imagePath);
+					replacement = await imageToBase64(src, filePath);
 					return { match: match[0], replacement };
 				} else {
-					const base64 = await imageToBase64(imagePath);
+					const base64 = await imageToBase64(src, filePath);
 					replacement = `<img src="${base64}"${match[2]}`;
 					return { match: match[0], replacement };
 				}
