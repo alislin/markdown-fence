@@ -3,7 +3,20 @@ import MarkdownIt from 'markdown-it';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import fencePlugin from './fencePlugin';
+import puppeteer, { Browser, Page, PDFOptions } from 'puppeteer';
 
+// 类型增强声明
+declare global {
+	interface Window {
+		mermaid?: {
+			initialize: (config: object) => void;
+			run: (options: {
+				querySelector: string;
+				suppressErrors?: boolean;
+			}) => Promise<void>;
+		};
+	}
+}
 interface ExportOptions {
 	size?: string;
 	margin?: {
@@ -39,12 +52,10 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const browser = await puppeteer.launch();
 			const page = await browser.newPage();
 			await page.setContent(html);
+			
+			// const log = (x: any) => console.log(x);
+			// await handleMermaidRendering(page, log);
 
-			// 添加纸张尺寸参数设置
-			// const paperSize = await vscode.window.showQuickPick(
-			// 	['A4', 'Letter', 'Legal'],
-			// 	{ placeHolder: '选择纸张尺寸' }
-			// );
 			const paperSize = exportData?.size;
 			const margin = exportData?.margin;
 			let header = exportData?.header;
@@ -55,11 +66,6 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const styleBlock = `width: 100%;font-size: 15rem;display:flex;justify-content: space-between;align-items: center;margin:0mm ${margin?.left || "5mm"}`;
 			const headerBlock = `<div class="pdf-header" style="${styleBlock}">${header}</div>`;
 			const footerBlock = `<div style="${styleBlock}">${footer}</div>`;
-
-
-			// 添加页码和总页数显示
-			// header = header ? `<div style="width: 100%; text-align: center;">${header}</div>` : `<div style="width: 100%; text-align: center;"><span class="pageNumber"></span></div>`;
-			// footer = footer ? `<div style="width: 100%; text-align: center;">${footer}</div>` : `<div style="width: 100%; text-align: center;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>`;
 
 			await page.pdf({
 				path: pdfPath,
@@ -98,6 +104,68 @@ export async function exportDocument(format: 'html' | 'pdf') {
 	else {
 		vscode.window.showErrorMessage('仅支持导出 HTML 和 PDF 格式');
 		return;
+	}
+}
+
+
+async function handleMermaidRendering(page: Page, log: any): Promise<void> {
+	try {
+		// 显式执行 Mermaid 渲染
+		await page.evaluate(async () => {
+			// log("1+++");
+			// const document = window.document;
+
+			try {
+				// 等待 Mermaid 模块加载完成
+				// @ts-ignore - 自定义元素类型检测
+				await customElements.whenDefined('mermaid-js');
+
+				// 类型安全的渲染检查
+				const hasRendered = await new Promise<boolean>((resolve) => {
+					const checkRender = () => {
+						const elements = document.querySelectorAll('.language-mermaid');
+						const allRendered = elements.length === 0 ||
+							Array.from(elements).every(el => el.querySelector('svg'));
+
+						if (allRendered) {
+							resolve(true);
+						} else {
+							setTimeout(checkRender, 100);
+						}
+					};
+					checkRender();
+				});
+
+				if (!hasRendered) {
+					// 手动触发渲染
+					// @ts-ignore - Mermaid 类型声明
+					await window.mermaid?.run({
+						querySelector: '.language-mermaid',
+						suppressErrors: true
+					});
+				}
+			} catch (e) {
+				console.error('Mermaid 渲染错误:', e);
+			}
+		});
+
+		// 双重验证渲染结果
+		await page.waitForFunction(() => {
+			// const document = window.document;
+			const elements = document.querySelectorAll('.language-mermaid');
+			return elements.length === 0 ||
+				Array.from(elements).every(el => {
+					const svg = el.querySelector('svg');
+					return svg && svg.childNodes.length > 0;
+				});
+		}, {
+			timeout: 5000,
+			polling: 200
+		});
+
+	} catch (error) {
+		console.error('处理 Mermaid 时发生错误:', error);
+		throw error;
 	}
 }
 
