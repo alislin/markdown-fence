@@ -16,7 +16,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "markdown.markdownItPlugins": true,
     "commands": [
@@ -54,7 +54,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "node esbuild.config.js",
     "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
     "copy-snippets": "copyfiles ./snippets/**/*.json ./out -u 1",
     "veradd": "node build/verAdd.js",
@@ -75,6 +75,7 @@
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "copyfiles": "^2.4.1",
+    "esbuild": "^0.25.1",
     "eslint": "^9.19.0",
     "gh-pages": "^6.3.0",
     "typescript": "^5.7.3"

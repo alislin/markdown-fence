@@ -17,5 +17,9 @@ public/**
 build/**
 docs/**
 test/**
+node_modules/**
+out/**
 **/docsify
 .nojekyll
+*.config.*
+**/*.map
