@@ -26,7 +26,7 @@ export async function exportDocument(format: 'html' | 'pdf') {
 				{ placeHolder: '选择纸张尺寸' }
 			);
 
-			await page.pdf({ path: pdfPath, format: paperSize || 'A4' });
+			await page.pdf({ path: pdfPath, format: paperSize || 'A4', margin: { top: '10mm', right: '5mm', bottom: '10mm', left: '5mm' } });
 
 			await browser.close();
 
