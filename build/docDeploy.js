@@ -3,7 +3,7 @@ const path = require('path');
 const glob = require('glob');
 
 const publicDir = 'public';
-const outDir = 'out';
+const outDir = 'out/docsify';
 const docIndex = 'docs/html/index.html';
 
 /**
@@ -41,10 +41,32 @@ async function deploy() {
       `${outDir}/**/*`,
     ];
 
+    // 排除目标列表，支持通配符
+    const excludeTargets = [
+      'test/**/*',
+      '**/extension.*',
+      '**/*.scss'
+    ];
+
     // 循环复制目标
     for (const target of copyTargets) {
       const files = glob.sync(target);
       for (const file of files) {
+        // 判断文件是否在排除列表中
+        let excluded = false;
+        for (const excludeTarget of excludeTargets) {
+          const excludeFiles = glob.sync(excludeTarget);
+          if (excludeFiles.includes(file)) {
+            excluded = true;
+            break;
+          }
+        }
+
+        if (excluded) {
+          console.log(`跳过 ${file}`);
+          continue;
+        }
+
         const src = file;
         const dest = path.join(publicDir, file);
         await copyFile(src, dest);
