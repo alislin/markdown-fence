@@ -1,10 +1,15 @@
 import MarkdownIt from 'markdown-it';
 
 interface FencePluginOptions {
-  // 可添加未来需要的配置项
+  fenceStyle?: string;
 }
 
+export type { FencePluginOptions };
+
 export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions = {}) {
+  const fenceBlockClass = 'fence-block';
+  const fenceItemClass = 'fence-item';
+
   const FENCE_START = 'fence:start';
   const FENCE_END = 'fence:end';
   const FENCE_SPLIT = 'fence';
@@ -42,7 +47,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
       // 生成 Token
       const token = state.push('custom_fence', 'div', 0);
-      token.attrSet('class', 'fence-block');
+      token.attrSet('class', fenceBlockClass);
       token.map = [startLine, currentLine];
       token.content = items.join(`\n<!-- ${FENCE_SPLIT} -->\n`);
       token.block = true;
@@ -56,12 +61,12 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
   md.renderer.rules.custom_fence = (tokens, idx) => {
     const content = tokens[idx].content;
     const items = content.split(`\n<!-- ${FENCE_SPLIT} -->\n`);
-    
+
     const renderedItems = items.map(item => {
       // 使用 markdown-it 单独解析每个区块
-      return `<div class="fence-item">${md.render(item.trim())}</div>`;
+      return `<div class="${fenceItemClass}">${md.render(item.trim())}</div>`;
     }).join('\n');
 
-    return `<div class="fence-block">\n${renderedItems}\n</div>`;
+    return `<div class="${fenceBlockClass}">\n${renderedItems}\n</div>`;
   };
 }

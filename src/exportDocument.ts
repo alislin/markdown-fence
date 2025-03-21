@@ -4,6 +4,18 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import fencePlugin from './fencePlugin';
 
+interface ExportOptions {
+	size?: string;
+	margin?: {
+		top?: string;
+		right?: string;
+		bottom?: string;
+		left?: string;
+	},
+	header?: string;
+	footer?: string;
+}
+
 export async function exportDocument(format: 'html' | 'pdf') {
 	const render = await markdownRender();
 	if (!render || !render.html) {
@@ -13,6 +25,9 @@ export async function exportDocument(format: 'html' | 'pdf') {
 
 	if (format === 'pdf') {
 		try {
+			const config = vscode.workspace.getConfiguration('markdown-fence');
+			const exportData = config.get<ExportOptions>('export');
+
 			const pdfPath = path.join(path.dirname(filePath), `${fileName}.pdf`);
 			// 使用 Puppeteer 将 HTML 转换为 PDF
 			const puppeteer = require('puppeteer');
@@ -21,12 +36,14 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			await page.setContent(html);
 
 			// 添加纸张尺寸参数设置
-			const paperSize = await vscode.window.showQuickPick(
-				['A4', 'Letter', 'Legal'],
-				{ placeHolder: '选择纸张尺寸' }
-			);
+			// const paperSize = await vscode.window.showQuickPick(
+			// 	['A4', 'Letter', 'Legal'],
+			// 	{ placeHolder: '选择纸张尺寸' }
+			// );
+			const paperSize = exportData?.size;
+			const margin = exportData?.margin;
 
-			await page.pdf({ path: pdfPath, format: paperSize || 'A4', margin: { top: '10mm', right: '5mm', bottom: '10mm', left: '5mm' } });
+			await page.pdf({ path: pdfPath, format: paperSize || 'A4', margin: { top: margin?.top || '10mm', right: margin?.right || '5mm', bottom: margin?.bottom || '10mm', left: margin?.left || '5mm' } });
 
 			await browser.close();
 

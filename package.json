@@ -50,6 +50,56 @@
     ],
     "markdown.previewStyles": [
       "./css/fence.css"
+    ],
+    "configuration": [
+      {
+        "title": "Markdown Fence",
+        "properties": {
+          "markdown-fence.export.header": {
+            "type": "string",
+            "description": "Export PDF header (html)",
+            "editPresentation": "multilineText",
+            "order": 10
+          },
+          "markdown-fence.export.footer": {
+            "type": "string",
+            "description": "Export PDF footer (html)",
+            "editPresentation": "multilineText",
+            "order": 20
+          },
+          "markdown-fence.export.size": {
+            "type": "string",
+            "enum": [
+              "A3",
+              "A4",
+              "Letter",
+              "Legal"
+            ],
+            "default": "A4",
+            "description": "Export PDF paper size"
+          },
+          "markdown-fence.export.margin.top": {
+            "type": "string",
+            "description": "Export PDF margins top (default: 20mm)",
+            "order": 0
+          },
+          "markdown-fence.export.margin.right": {
+            "type": "string",
+            "description": "Export PDF margins right (default: 5mm)",
+            "order": 1
+          },
+          "markdown-fence.export.margin.bottom": {
+            "type": "string",
+            "description": "Export PDF margins bottom (default: 10mm))",
+            "order": 2
+          },
+          "markdown-fence.export.margin.left": {
+            "type": "string",
+            "description": "Export PDF margins left (default: 5mm)",
+            "order": 3
+          }
+        }
+      }
     ]
   },
   "scripts": {

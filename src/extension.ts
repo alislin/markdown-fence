@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import MarkdownIt from 'markdown-it';
 import fencePlugin from './fencePlugin';
+import { FencePluginOptions } from './fencePlugin';
 import { exportDocument } from './exportDocument';
 
 // This method is called when your extension is activated
@@ -118,7 +119,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// 增强 Markdown 预览
 	return {
 		extendMarkdownIt(md: MarkdownIt) {
-			md.use(fencePlugin);
+			const config = vscode.workspace.getConfiguration('markdown-fence');
+			const styles = config.get<FencePluginOptions>('styles');
+
+			md.use(fencePlugin, styles);
+
 			return md;
 		}
 	};
