@@ -28,10 +28,37 @@
     }
 }
 
-// .fence-item > *:first-child {
-//     margin-top: 0;
-// }
+@page {
+    margin: 10mm;
+    size: A4;
+    counter-increment: page;
+    @bottom-center {
+        // content: "";
+    }
+}
 
-// .fence-item > *:last-child {
-//     margin-bottom: 0;
-// }
+
+.pdf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 30rem;
+    margin: 0 ;
+    // text-align: center;
+}
+
+.pdf-footer {
+    display: flex;
+    width: 100%;
+    font-size: 30rem;
+    // text-align: center;
+}
+
+.pageNumber::before {
+    content: counter(page);
+}
+
+.totalPages::before {
+    content: counter(total);
+}

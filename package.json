@@ -63,7 +63,7 @@
           },
           "markdown-fence.export.footer": {
             "type": "string",
-            "description": "Export PDF footer (html)",
+            "description": "Export PDF footer (html). keywords:{title},{pageNumber},{totalPages}",
             "editPresentation": "multilineText",
             "order": 20
           },
@@ -76,27 +76,28 @@
               "Legal"
             ],
             "default": "A4",
-            "description": "Export PDF paper size"
+            "description": "Export PDF paper size",
+            "order": 1
           },
           "markdown-fence.export.margin.top": {
             "type": "string",
             "description": "Export PDF margins top (default: 20mm)",
-            "order": 0
+            "order": 2
           },
           "markdown-fence.export.margin.right": {
             "type": "string",
             "description": "Export PDF margins right (default: 5mm)",
-            "order": 1
+            "order": 3
           },
           "markdown-fence.export.margin.bottom": {
             "type": "string",
             "description": "Export PDF margins bottom (default: 10mm))",
-            "order": 2
+            "order": 4
           },
           "markdown-fence.export.margin.left": {
             "type": "string",
             "description": "Export PDF margins left (default: 5mm)",
-            "order": 3
+            "order": 5
           }
         }
       }

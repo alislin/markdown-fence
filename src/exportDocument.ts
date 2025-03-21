@@ -25,6 +25,11 @@ export async function exportDocument(format: 'html' | 'pdf') {
 
 	if (format === 'pdf') {
 		try {
+			const pageNumber = `<span class="pageNumber"></span>`;
+			const totalPages = `<span class="totalPages"></span>`;
+			const title = render.fileName;
+			const keyList = { title, pageNumber, totalPages };
+
 			const config = vscode.workspace.getConfiguration('markdown-fence');
 			const exportData = config.get<ExportOptions>('export');
 
@@ -42,8 +47,29 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			// );
 			const paperSize = exportData?.size;
 			const margin = exportData?.margin;
+			let header = exportData?.header;
+			let footer = exportData?.footer;
 
-			await page.pdf({ path: pdfPath, format: paperSize || 'A4', margin: { top: margin?.top || '10mm', right: margin?.right || '5mm', bottom: margin?.bottom || '10mm', left: margin?.left || '5mm' } });
+			header = replaceKeyValue(header, keyList);
+			footer = replaceKeyValue(footer, keyList);
+			const styleBlock = `width: 100%;font-size: 15rem;display:flex;justify-content: space-between;align-items: center;margin:0mm ${margin?.left || "5mm"}`;
+			const headerBlock = `<div class="pdf-header" style="${styleBlock}">${header}</div>`;
+			const footerBlock = `<div style="${styleBlock}">${footer}</div>`;
+
+
+			// 添加页码和总页数显示
+			// header = header ? `<div style="width: 100%; text-align: center;">${header}</div>` : `<div style="width: 100%; text-align: center;"><span class="pageNumber"></span></div>`;
+			// footer = footer ? `<div style="width: 100%; text-align: center;">${footer}</div>` : `<div style="width: 100%; text-align: center;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>`;
+
+			await page.pdf({
+				path: pdfPath,
+				format: paperSize || 'A4',
+				margin: { top: margin?.top || '10mm', right: margin?.right || '5mm', bottom: margin?.bottom || '10mm', left: margin?.left || '5mm' },
+				headerTemplate: headerBlock,
+				footerTemplate: footerBlock,
+				displayHeaderFooter: header !== undefined || footer !== undefined,
+				printBackground: true, // 启用背景打印，以便 CSS 样式生效
+			});
 
 			await browser.close();
 
@@ -73,6 +99,19 @@ export async function exportDocument(format: 'html' | 'pdf') {
 		vscode.window.showErrorMessage('仅支持导出 HTML 和 PDF 格式');
 		return;
 	}
+}
+
+function replaceKeyValue(text: string | undefined, keyList: { [key: string]: string; }): string | undefined {
+	if (!text) {
+		return undefined;
+	}
+
+	Object.keys(keyList).forEach(key => {
+		const keyword = `{${key}}`;
+		text = text!.replace(new RegExp(keyword, 'g'), keyList[key]);
+	});
+
+	return text;
 }
 
 async function imageToBase64(imagePath: string): Promise<string> {
