@@ -121,9 +121,12 @@ async function imageToBase64(imagePath: string, filePath: string): Promise<strin
 		const ext = path.extname(imagePath).toLowerCase();
 
 		if (ext === '.svg') {
-			return data.toString('utf8'); // 直接读取 SVG 文件内容
+			const decoder = new TextDecoder('utf-8');
+			return decoder.decode(data);
+			// return data.toString('utf8'); // 直接读取 SVG 文件内容
 		} else {
-			const base64 = data.toString('base64');
+			const base64 = Buffer.from(data).toString("base64");
+			// const base64 = data.toString('base64');
 			const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
 			return `data:${mimeType};base64,${base64}`;
 		}
@@ -139,7 +142,7 @@ async function loadImageFile(imagePath: string, filePath: string) {
 	const decodedImagePath = decodeURIComponent(imagePath);
 	if (decodedImagePath.startsWith('http://') || decodedImagePath.startsWith('https://')) {
 		const response = await fetch(imagePath);
-		const buffer = await response.buffer();
+		const buffer = await response.arrayBuffer();
 		return buffer;
 	} else {
 		let src = path.join(path.dirname(filePath), imagePath);
