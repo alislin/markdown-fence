@@ -9,6 +9,8 @@ vscode extension "markdown fence".
 
 ## 功能 Features
 <!-- fence:start -->
+**语法标记**
+
 ### 标记语法 Markup syntax
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
@@ -20,12 +22,16 @@ Use markers to split into multi-column styles
   - `<!-- <<< -->`
 
 <!-- fence -->
+**导出**
+
 ### 导出
 支持 html,pdf 两种格式
 - `Markdown Fence: Export to HTML`
 - `Markdown Fence: Export to PDF`
 <!-- fence:end -->
 <!-- >>> -->
+**markdown**
+
 markdown 内容如下  
 markdown content:
 ```markdown
@@ -39,6 +45,7 @@ markdown content:
 <!-- fence:end -->
 ```
 <!-- --- -->
+**预览**
 
 预览  
 after render:

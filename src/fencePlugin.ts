@@ -1,3 +1,10 @@
+/*
+ * @Author: Lin Ya
+ * @Date: 2025-03-19 21:38:00
+ * @LastEditors: Lin Ya
+ * @LastEditTime: 2025-03-22 23:43:19
+ * @Description: fence 实现
+ */
 import MarkdownIt from 'markdown-it';
 import { FenceTag, FenceShortTag, markString } from './fenceMark';
 
@@ -85,6 +92,16 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
     const renderedItems = items.map(item => {
       // 使用 markdown-it 单独解析每个区块
+      const lines = item.trim().split('\n');
+      if (lines.length > 1 && /^\s*(\*\*|\_\_)(.+)(\*\*|\_\_)\s*$/.test(lines[0]) && /^\s*$/.test(lines[1])) {
+        // 移除加粗语法获取普通文本
+        const match = /^(\*\*|\_\_)(.+)(\*\*|\_\_)$/.exec(lines[0]);
+        if (match && match[2]) {
+          const title = match[2].toString();
+          lines[0] = `<div class="fence-title">${(title)}</div>`;
+          item = lines.join('\n');
+        }
+      }
       return `<div class="${itemClass}">${md.render(item.trim())}</div>`;
     }).join('\n');
 

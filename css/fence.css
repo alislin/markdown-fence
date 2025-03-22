@@ -15,9 +15,10 @@
 .fence-short-block .fence-short-item {
   flex: 1;
   padding: 0.5rem;
-  background-color: #eeeeee;
+  background-color: #fcfcfc;
   border-radius: 0.375rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1647058824);
+  position: relative;
 }
 .fence-block .fence-item > *:first-child,
 .fence-block .fence-short-item > *:first-child,
@@ -39,6 +40,20 @@
   height: auto;
   -o-object-fit: contain;
      object-fit: contain;
+}
+.fence-block .fence-title,
+.fence-short-block .fence-title {
+  position: sticky;
+  top: 0px;
+  padding: 5px;
+  border-bottom: 1px #cccccc solid;
+  margin: -5px -5px 10px -5px;
+  font-size: 1.13rem;
+  font-weight: 600;
+  background-color: #e5e5e5;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  z-index: 10;
 }
 
 @page {
