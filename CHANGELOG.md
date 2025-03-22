@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased] - 2025-03-22
 
+## [1.0.4] - 2025-03-22
+
 ### Added
 - 添加对短标记的支持，重构 fence 插件以处理长短两种类型的 fence，更新相关样式和渲染逻辑
 
