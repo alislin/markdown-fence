@@ -114,7 +114,7 @@
     "test": "vscode-test",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "doc:deploy": "tsc -p ./ && node build/docDeploy.js"
+    "doc:deploy": "tsc -p tsconfig.docsify.json && node build/docDeploy.js"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

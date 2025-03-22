@@ -1,8 +1,26 @@
 function fence(hook: any, vm: any) {
+  const FenceTag = {
+    START: 'fence:start',
+    END: 'fence:end',
+    SPLIT: 'fence',
+  };
+
+  const FenceShortTag = {
+    START: '>>>',
+    END: '<<<',
+    SPLIT: '---',
+  };
+
+  function markString(src: string) {
+    return `<!-- ${src} -->`;
+  }
   hook.afterEach(function (html: string, next: any) {
-    const FENCE_START_MARK = '<!-- fence:start -->';
-    const FENCE_END_MARK = '<!-- fence:end -->';
-    const FENCE_SPLIT_MARK = '<!-- fence -->';
+    // const FENCE_START_MARK = '<!-- fence:start -->';
+    // const FENCE_END_MARK = '<!-- fence:end -->';
+    // const FENCE_SPLIT_MARK = '<!-- fence -->';
+    const FENCE_START_MARK = markString(FenceTag.START);
+    const FENCE_END_MARK = markString(FenceTag.END);
+    const FENCE_SPLIT_MARK = markString(FenceTag.SPLIT);
 
     let newHtml = html;
     let startIndex = newHtml.indexOf(FENCE_START_MARK);
@@ -29,4 +47,8 @@ function fence(hook: any, vm: any) {
 
     next(newHtml);
   });
+
+
+
 }
+
