@@ -1,3 +1,10 @@
+/*
+ * @Author: Lin Ya
+ * @Date: 2025-03-20 19:51:38
+ * @LastEditors: Lin Ya
+ * @LastEditTime: 2025-03-23 00:08:55
+ * @Description: fence docsify plugin
+ */
 function fence(hook: any, vm: any) {
   const FenceTag = {
     START: 'fence:start',
@@ -36,6 +43,16 @@ function fence(hook: any, vm: any) {
       const items = fenceContent.split(FENCE_SPLIT_MARK);
 
       const renderedItems = items.map(item => {
+        const lines = item.trim().split('\n');
+        if (lines.length > 0 && /<p><strong>(.+?)<\/strong><\/p>/.test(lines[0])) {
+          // 移除加粗语法获取普通文本
+          const match = /<p><strong>(.+?)<\/strong><\/p>(.*)/.exec(lines[0]);
+          if (match && match[1]) {
+            const title = match[1].toString();
+            lines[0] = `<div class="fence-title">${(title)}</div>${match[2]}`;
+            item = lines.join('\n');
+          }
+        }
         return `<div class="fence-item">${item.trim()}</div>`;
       }).join('\n');
 
@@ -58,6 +75,16 @@ function fence(hook: any, vm: any) {
       const items = fenceContent.split(FENCE_SHORT_SPLIT_MARK);
 
       const renderedItems = items.map(item => {
+        const lines = item.trim().split('\n');
+        if (lines.length > 0 && /<p><strong>(.+?)<\/strong><\/p>/.test(lines[0])) {
+          // 移除加粗语法获取普通文本
+          const match = /<p><strong>(.+?)<\/strong><\/p>(.*)/.exec(lines[0]);
+          if (match && match[1]) {
+            const title = match[1].toString();
+            lines[0] = `<div class="fence-title">${(title)}</div>${match[2]}`;
+            item = lines.join('\n');
+          }
+        }
         return `<div class="fence-short-item">${item.trim()}</div>`;
       }).join('\n');
 
