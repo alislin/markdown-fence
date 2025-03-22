@@ -3,7 +3,20 @@ import MarkdownIt from 'markdown-it';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import fencePlugin from './fencePlugin';
+import puppeteer, { Browser, Page, PDFOptions } from 'puppeteer';
 
+// 类型增强声明
+declare global {
+	interface Window {
+		mermaid?: {
+			initialize: (config: object) => void;
+			run: (options: {
+				querySelector: string;
+				suppressErrors?: boolean;
+			}) => Promise<void>;
+		};
+	}
+}
 interface ExportOptions {
 	size?: string;
 	margin?: {
@@ -39,12 +52,10 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const browser = await puppeteer.launch();
 			const page = await browser.newPage();
 			await page.setContent(html);
+			
+			// const log = (x: any) => console.log(x);
+			// await handleMermaidRendering(page, log);
 
-			// 添加纸张尺寸参数设置
-			// const paperSize = await vscode.window.showQuickPick(
-			// 	['A4', 'Letter', 'Legal'],
-			// 	{ placeHolder: '选择纸张尺寸' }
-			// );
 			const paperSize = exportData?.size;
 			const margin = exportData?.margin;
 			let header = exportData?.header;
@@ -55,11 +66,6 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const styleBlock = `width: 100%;font-size: 15rem;display:flex;justify-content: space-between;align-items: center;margin:0mm ${margin?.left || "5mm"}`;
 			const headerBlock = `<div class="pdf-header" style="${styleBlock}">${header}</div>`;
 			const footerBlock = `<div style="${styleBlock}">${footer}</div>`;
-
-
-			// 添加页码和总页数显示
-			// header = header ? `<div style="width: 100%; text-align: center;">${header}</div>` : `<div style="width: 100%; text-align: center;"><span class="pageNumber"></span></div>`;
-			// footer = footer ? `<div style="width: 100%; text-align: center;">${footer}</div>` : `<div style="width: 100%; text-align: center;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>`;
 
 			await page.pdf({
 				path: pdfPath,
@@ -101,6 +107,68 @@ export async function exportDocument(format: 'html' | 'pdf') {
 	}
 }
 
+
+async function handleMermaidRendering(page: Page, log: any): Promise<void> {
+	try {
+		// 显式执行 Mermaid 渲染
+		await page.evaluate(async () => {
+			// log("1+++");
+			// const document = window.document;
+
+			try {
+				// 等待 Mermaid 模块加载完成
+				// @ts-ignore - 自定义元素类型检测
+				await customElements.whenDefined('mermaid-js');
+
+				// 类型安全的渲染检查
+				const hasRendered = await new Promise<boolean>((resolve) => {
+					const checkRender = () => {
+						const elements = document.querySelectorAll('.language-mermaid');
+						const allRendered = elements.length === 0 ||
+							Array.from(elements).every(el => el.querySelector('svg'));
+
+						if (allRendered) {
+							resolve(true);
+						} else {
+							setTimeout(checkRender, 100);
+						}
+					};
+					checkRender();
+				});
+
+				if (!hasRendered) {
+					// 手动触发渲染
+					// @ts-ignore - Mermaid 类型声明
+					await window.mermaid?.run({
+						querySelector: '.language-mermaid',
+						suppressErrors: true
+					});
+				}
+			} catch (e) {
+				console.error('Mermaid 渲染错误:', e);
+			}
+		});
+
+		// 双重验证渲染结果
+		await page.waitForFunction(() => {
+			// const document = window.document;
+			const elements = document.querySelectorAll('.language-mermaid');
+			return elements.length === 0 ||
+				Array.from(elements).every(el => {
+					const svg = el.querySelector('svg');
+					return svg && svg.childNodes.length > 0;
+				});
+		}, {
+			timeout: 5000,
+			polling: 200
+		});
+
+	} catch (error) {
+		console.error('处理 Mermaid 时发生错误:', error);
+		throw error;
+	}
+}
+
 function replaceKeyValue(text: string | undefined, keyList: { [key: string]: string; }): string | undefined {
 	if (!text) {
 		return undefined;
@@ -114,22 +182,40 @@ function replaceKeyValue(text: string | undefined, keyList: { [key: string]: str
 	return text;
 }
 
-async function imageToBase64(imagePath: string): Promise<string> {
+async function imageToBase64(imagePath: string, filePath: string): Promise<string> {
 	try {
-		const encodedImagePath = encodeURIComponent(imagePath);
-		const data = await fs.promises.readFile(decodeURIComponent(encodedImagePath));
+		// const data = await fs.promises.readFile(decodeURIComponent(encodedImagePath));
+		const data = await loadImageFile(imagePath, filePath);
 		const ext = path.extname(imagePath).toLowerCase();
 
 		if (ext === '.svg') {
-			return data.toString('utf8'); // 直接读取 SVG 文件内容
+			const decoder = new TextDecoder('utf-8');
+			return decoder.decode(data);
+			// return data.toString('utf8'); // 直接读取 SVG 文件内容
 		} else {
-			const base64 = data.toString('base64');
+			const base64 = Buffer.from(data).toString("base64");
+			// const base64 = data.toString('base64');
 			const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
 			return `data:${mimeType};base64,${base64}`;
 		}
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Failed to convert image to base64: ${error.message}`);
 		return '';
+	}
+}
+
+async function loadImageFile(imagePath: string, filePath: string) {
+	const fetch = await import('node-fetch').then(m => m.default);
+	// 检测 encodedImagePath 是否网络文件，如果是网络文件使用node-fetch下载
+	const decodedImagePath = decodeURIComponent(imagePath);
+	if (decodedImagePath.startsWith('http://') || decodedImagePath.startsWith('https://')) {
+		const response = await fetch(imagePath);
+		const buffer = await response.arrayBuffer();
+		return buffer;
+	} else {
+		let src = path.join(path.dirname(filePath), imagePath);
+		const decodedImagePath = decodeURIComponent(src);
+		return await fs.promises.readFile(decodedImagePath);
 	}
 }
 
@@ -170,17 +256,15 @@ async function markdownRender() {
 		const base64Images = await Promise.all(
 			imgTags.map(async (match) => {
 				const src = match[1];
-				let imagePath = path.join(path.dirname(filePath), src);
-				imagePath = decodeURIComponent(imagePath);
-				const ext = path.extname(decodeURIComponent(imagePath)).toLowerCase();
+				const ext = path.extname(decodeURIComponent(src)).toLowerCase();
 				let replacement = '';
 
 				if (ext === '.svg') {
 					// 直接读取 SVG 文件内容
-					replacement = await imageToBase64(imagePath);
+					replacement = await imageToBase64(src, filePath);
 					return { match: match[0], replacement };
 				} else {
-					const base64 = await imageToBase64(imagePath);
+					const base64 = await imageToBase64(src, filePath);
 					replacement = `<img src="${base64}"${match[2]}`;
 					return { match: match[0], replacement };
 				}

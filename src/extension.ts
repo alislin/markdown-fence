@@ -12,6 +12,7 @@ import MarkdownIt from 'markdown-it';
 import fencePlugin from './fencePlugin';
 import { FencePluginOptions } from './fencePlugin';
 import { exportDocument } from './exportDocument';
+import { insertFence } from './insertFence';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -49,7 +50,11 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand('extension.exportToPDF', async () => {
 			await exportDocument('pdf');
+		}),
+		vscode.commands.registerCommand('extension.insertFence', async () => {
+			await insertFence();
 		})
+
 	);
 
 	// 文档变更监听器

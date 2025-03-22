@@ -9,7 +9,7 @@ vscode extension "markdown fence".
 
 ## 功能 Features
 <!-- fence:start -->
-### 标记语法
+### 标记语法 Markup syntax
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
 - `<!-- fence:start -->`
@@ -55,7 +55,8 @@ after render:
 </div>
 ```
 ## 样式 style
-可以根据自己的需要编写样式覆盖
+可以根据自己的需要编写样式覆盖  
+You can write style overrides according to your needs
 ```css
 .fence-block {
 
@@ -66,8 +67,9 @@ after render:
 }
 ```
 
-## docsify 插件支持
-Markdown Fence 也提供了docsify支持。按下面添加插件即可使用
+## docsify plugin 插件支持
+Markdown Fence 也提供了docsify支持。按下面添加插件即可使用  
+Markdown Fence also provides docsify support. Click below to add a plug-in to use
 
 ```diff
 <!DOCTYPE html>
@@ -92,7 +94,7 @@ Markdown Fence 也提供了docsify支持。按下面添加插件即可使用
     window.$docsify = {
       name: 'Markdown Fence',
       repo: '',
-+      plugins:[fence]
++     plugins:[fence]
     }
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
