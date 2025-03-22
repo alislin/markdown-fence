@@ -13,8 +13,11 @@ vscode extension "markdown fence".
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
 - `<!-- fence:start -->`
+  - `<!-- >>> -->`
 - `<!-- fence -->`
+  - `<!-- --- -->`
 - `<!-- fence:end -->`
+  - `<!-- <<< -->`
 
 <!-- fence -->
 ### 导出
@@ -58,11 +61,11 @@ after render:
 可以根据自己的需要编写样式覆盖  
 You can write style overrides according to your needs
 ```css
-.fence-block {
+.fence-block,fence-short-block {
 
 }
 
-.fence-item {
+.fence-item,fence-short-item {
 
 }
 ```
