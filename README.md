@@ -9,26 +9,37 @@ vscode extension "markdown fence".
 
 ## 功能 Features
 <!-- fence:start -->
-**语法标记**
+**标准语法 Standard syntax**
 
-### 标记语法 Markup syntax
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
 - `<!-- fence:start -->`
-  - `<!-- >>> -->`
 - `<!-- fence -->`
-  - `<!-- --- -->`
 - `<!-- fence:end -->`
-  - `<!-- <<< -->`
+<!-- fence -->
+**快速语法 Short syntax**
+
+使用下面标记进行分隔  
+Use markers to split into multi-column styles
+- `<!-- >>> -->`
+- `<!-- --- -->`
+- `<!-- <<< -->`
 
 <!-- fence -->
-**导出**
+**分栏标题 Column headings**
 
-### 导出
-支持 html,pdf 两种格式
+在分栏第一行使用加粗的文本，并且在后续保持一个空行。这行就会解析为分栏标题。  
+Use bold text on the first line of the column and keep a blank line for the follow-up. This line resolves to a section header.
+`**标题 title**`  
+`<空行 empty row>`
+<!-- fence:end -->
+
+**命令 Command**
+
+支持导出 html,pdf 两种格式  
+Support export of HTML and PDF formats
 - `Markdown Fence: Export to HTML`
 - `Markdown Fence: Export to PDF`
-<!-- fence:end -->
 <!-- >>> -->
 **markdown**
 
@@ -96,12 +107,12 @@ Markdown Fence also provides docsify support. Click below to add a plug-in to us
   <meta name="description" content="Markdown Fence" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/themes/vue.css" />
-+  <link rel="stylesheet" href="https://alislin.github.io/markdown-fence/css/fence.css" />
++ <link rel="stylesheet" href="https://alislin.github.io/markdown-fence/css/fence.css" />
 </head>
 
 <body>
   <div id="app"></div>
-+  <script src="https://alislin.github.io/markdown-fence/out/docsify/fence.js"></script>
++ <script src="https://alislin.github.io/markdown-fence/out/docsify/fence.js"></script>
   <script>
     var num = 0;
     window.$docsify = {

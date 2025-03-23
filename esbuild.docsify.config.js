@@ -1,5 +1,8 @@
 const esbuild = require('esbuild');
 
+// 编译 scss 文件
+require('child_process').execSync('sass css/fence.scss css/fence.css');
+
 esbuild.build({
   entryPoints: ['src/docsify/fence.ts'],
   bundle: true,

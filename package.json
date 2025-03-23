@@ -105,7 +105,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "node esbuild.config.js",
+    "compile": "npm run build-css && node esbuild.config.js",
     "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
     "copy-snippets": "copyfiles ./snippets/**/*.json ./out -u 1",
     "veradd": "node build/verAdd.js",
@@ -114,7 +114,8 @@
     "test": "vscode-test",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "doc:deploy": "tsc -p tsconfig.docsify.json && node build/docDeploy.js"
+    "build-css":"sass css/fence.scss css/fence.css",
+    "doc:deploy": "npm run build-css && tsc -p tsconfig.docsify.json && node build/docDeploy.js"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
@@ -129,6 +130,7 @@
     "esbuild": "^0.25.1",
     "eslint": "^9.19.0",
     "gh-pages": "^6.3.0",
+    "sass": "^1.86.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
