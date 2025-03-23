@@ -3,8 +3,12 @@
 All notable changes to the "markdown-fence" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [Unreleased]
 
-## [Unreleased] - 2025-03-22
+## [1.0.5] - 2025-03-23
+
+### Changed
+- 增加分栏标题解析
 
 ## [1.0.4] - 2025-03-22
 
