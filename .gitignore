@@ -6,4 +6,5 @@ node_modules
 .vscode
 .config
 *.css
+*.css.map
 public
