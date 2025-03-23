@@ -4,6 +4,7 @@ All notable changes to the "markdown-fence" extension will be documented in this
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 ## [Unreleased]
+- 增加新的语法支持，为下一步提供Obsidian支持
 
 ## [1.0.5] - 2025-03-23
 
