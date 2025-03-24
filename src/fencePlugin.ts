@@ -93,16 +93,19 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     const renderedItems = items.map(item => {
       // 使用 markdown-it 单独解析每个区块
       const lines = item.trim().split('\n');
+      let titleHtml = '';
       if (lines.length > 1 && /^\s*(\*\*|\_\_)(.+)(\*\*|\_\_)\s*$/.test(lines[0]) && /^\s*$/.test(lines[1])) {
         // 移除加粗语法获取普通文本
         const match = /^(\*\*|\_\_)(.+)(\*\*|\_\_)$/.exec(lines[0]);
         if (match && match[2]) {
           const title = match[2].toString();
-          lines[0] = `<div class="fence-title">${(title)}</div>`;
-          item = lines.join('\n');
+          titleHtml = `<div class="fence-title">${(title)}</div>`;
+          lines.shift(); // 移除标题行
+          lines.shift(); // 移除空行
         }
       }
-      return `<div class="${itemClass}">${md.render(item.trim())}</div>`;
+      const contentHtml = md.render(lines.join('\n').trim());
+      return `<div class="${itemClass}">${titleHtml}${contentHtml}</div>`;
     }).join('\n');
 
     return `<div class="${blockClass.join(" ")}">\n${renderedItems}\n</div>`;
