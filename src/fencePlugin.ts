@@ -6,7 +6,7 @@
  * @Description: fence 实现
  */
 import MarkdownIt from 'markdown-it';
-import { FenceTag, FenceShortTag, markString } from './fenceMark';
+import { FenceMarks, MarkDefineWithType } from './fenceMark';
 
 interface FencePluginOptions {
   fenceStyle?: string;
@@ -18,14 +18,6 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
   const fenceBlockClass = 'fence-block';
   const fenceItemClass = 'fence-item';
 
-  const FENCE_START_MARK = markString(FenceTag.START);
-  const FENCE_END_MARK = markString(FenceTag.END);
-  const FENCE_SPLIT_MARK = markString(FenceTag.SPLIT);
-
-  const FENCE_SHORT_START_MARK = markString(FenceShortTag.START);
-  const FENCE_SHORT_END_MARK = markString(FenceShortTag.END);
-  const FENCE_SHORT_SPLIT_MARK = markString(FenceShortTag.SPLIT);
-
   md.block.ruler.before('fence', 'custom_fence', (state, startLine, endLine, silent) => {
     const start = state.bMarks[startLine] + state.tShift[startLine];
     const max = state.eMarks[startLine];
@@ -33,13 +25,13 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
     // 检测起始标记
     let currentLine = startLine;
-    let fenceType: 'long' | 'short' | null = null;
+    let fenceType: MarkDefineWithType | null = null;
 
-    if (content.startsWith(`${FENCE_START_MARK}`)) {
-      fenceType = 'long';
-
-    } else if (content.startsWith(`${FENCE_SHORT_START_MARK}`)) {
-      fenceType = 'short';
+    for (const mark of FenceMarks) {
+      if (content.startsWith(mark.START)) {
+        fenceType = mark;
+        break;
+      }
     }
 
     if (fenceType) {
@@ -52,15 +44,12 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
         const lineEnd = state.eMarks[currentLine];
         const lineContent = state.src.slice(lineStart, lineEnd);
 
-        let endMark = fenceType === 'long' ? `${FENCE_END_MARK}` : `${FENCE_SHORT_END_MARK}`;
-        let splitMark = fenceType === 'long' ? `${FENCE_SPLIT_MARK}` : `${FENCE_SHORT_SPLIT_MARK}`;
-
-        if (lineContent.startsWith(endMark)) {
+        if (lineContent.startsWith(fenceType.END)) {
           items.push(currentItem.join('\n'));
           break;
         }
 
-        if (lineContent.startsWith(splitMark)) {
+        if (lineContent.startsWith(fenceType.SPLIT)) {
           items.push(currentItem.join('\n'));
           currentItem = [];
           continue;
@@ -71,9 +60,9 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
       // 生成 Token
       const token = state.push('custom_fence', 'div', 0);
-      token.attrSet('class', fenceType === 'long' ? fenceBlockClass : 'fence-short-block');
+      token.attrSet('class', fenceType.type === 'long' ? fenceBlockClass : 'fence-short-block');
       token.map = [startLine, currentLine];
-      token.content = items.join(`\n${fenceType === 'long' ? FENCE_SPLIT_MARK : FENCE_SHORT_SPLIT_MARK}\n`);
+      token.content = items.join(`\n${fenceType.SPLIT}\n`);
       token.block = true;
 
       state.line = currentLine + 1;
@@ -86,7 +75,12 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     const content = tokens[idx].content;
     const blockClass = (tokens[idx].attrGet('class') || '').split(' ').map(x => x.trim());
 
-    const splitMark = blockClass.includes('fence-block') ? FENCE_SPLIT_MARK : FENCE_SHORT_SPLIT_MARK;
+    let splitMark: string;
+    if (blockClass.includes('fence-block')) {
+      splitMark = FenceMarks.find(mark => mark.type === 'long')?.SPLIT || '';
+    } else {
+      splitMark = FenceMarks.find(mark => mark.type === 'short')?.SPLIT || '';
+    }
     const itemClass = blockClass.includes('fence-block') ? fenceItemClass : 'fence-short-item';
     const items = content.split(`\n${splitMark}\n`);
 
