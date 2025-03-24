@@ -39,7 +39,7 @@ function fence(hook: any, vm: any) {
   };
 
   function markString(src: string) {
-    return `<!-- *?${src}? *-->`;
+    return `<!-- *?${src} *?-->`;
   }
 
   function getMarkDataWithType(data: MarkDefine): MarkDefine {
@@ -78,15 +78,53 @@ function fence(hook: any, vm: any) {
     return newHtml;
   }
 
+  function scanCodePosItems(html: string): { start: number; end: number }[] {
+    const codePosItems: { start: number; end: number }[] = [];
+    const codeRegex = /<code[^>]*>.*?<\/code>/g;
+    let codeMatch;
+    while ((codeMatch = codeRegex.exec(html)) !== null) {
+      codePosItems.push({ start: codeMatch.index, end: codeMatch.index + codeMatch[0].length });
+    }
+    return codePosItems;
+  }
+
+  function isInCodePosItems(index: number, codePosItems: { start: number; end: number }[]): boolean {
+    for (const codePos of codePosItems) {
+      if (index >= codePos.start && index <= codePos.end) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function getTagMatch(content: string, mark: string, codePosItems: { start: number; end: number }[]) {
+    // 查找有效的标志（添加全局标志以支持连续匹配）
+    const regex = new RegExp(mark, 'g');
+    let match;
+    while ((match = regex.exec(content)) !== null) { // 循环所有匹配
+      const index = match.index;
+      if (index !== undefined) {
+        if (!isInCodePosItems(index, codePosItems)) {
+          return match; // 返回第一个不在代码块中的匹配
+        }
+      }
+    }
+    return undefined; // 未找到有效匹配
+  }
+
   function tagRender(newHtml?: string) {
     if (!newHtml) {
       return { renderHtml: "", hasNext: false };
     }
+
+    // 扫描全文，匹配所有的 <code[^>]*>.*?</code>，将匹配块的开始和结束位置记录到 codePosItems 中。
+    const codePosItems = scanCodePosItems(newHtml);
+
     // 1. 找到起始标签
     let fenceType: MarkDefine | null = null;
     let firstMatchIndex = Infinity;
     for (const mark of FenceMarks) {
-      const match = newHtml.match(new RegExp(mark.START));
+      const match = getTagMatch(newHtml, mark.START, codePosItems);
       if (match && match.index !== undefined && match.index < firstMatchIndex) {
         fenceType = mark;
         firstMatchIndex = match.index;
@@ -99,8 +137,9 @@ function fence(hook: any, vm: any) {
       let endIndex = 0;
 
       // 找到起始标签的索引
-      const startRegex = new RegExp(fenceType.START);
-      const startMatch = newHtml.match(startRegex);
+      // const startRegex = new RegExp(fenceType.START);
+      // const startMatch = newHtml.match(startRegex);
+      const startMatch = getTagMatch(newHtml, fenceType.START, codePosItems);
       let startMatchLen = 0;
       if (startMatch) {
         startIndex = startMatch.index ?? 0;
@@ -109,8 +148,9 @@ function fence(hook: any, vm: any) {
       }
 
       // 找到结束标签的索引
-      const endRegex = new RegExp(fenceType.END);
-      const endMatch = newHtml.match(endRegex);
+      // const endRegex = new RegExp(fenceType.END);
+      // const endMatch = newHtml.match(endRegex);
+      const endMatch = getTagMatch(newHtml, fenceType.END, codePosItems);
       if (endMatch) {
         endIndex = endMatch.index ?? 0;
       } else {
@@ -122,7 +162,8 @@ function fence(hook: any, vm: any) {
       if (startIndex !== -1 && endIndex !== -1) {
         const content = newHtml.substring(startIndex, endIndex);
         const splitMark = fenceType.SPLIT;
-        const items = content.split(new RegExp(splitMark));
+        // const items = content.split(new RegExp(splitMark));
+        const items = splitByMark(content, splitMark);
 
         const renderedItems = items.map(item => {
           const lines = item.trim().split('\n');
@@ -151,5 +192,28 @@ function fence(hook: any, vm: any) {
       }
     }
     return { renderHtml: newHtml, hasNext: false };
+  }
+
+  function splitByMark(content: string, splitMark: string): string[] {
+    // 扫描全文，匹配所有的 <code[^>]*>.*?</code>，将匹配块的开始和结束位置记录到 codePosItems 中。
+    const codePosItems = scanCodePosItems(content);
+    const result: string[] = [];
+
+    // 查找有效的标志（添加全局标志以支持连续匹配）
+    const regex = new RegExp(splitMark, 'g');
+    let match;
+    let lastStartIndex = 0;
+    while ((match = regex.exec(content)) !== null) { // 循环所有匹配
+      const index = match.index;
+      if (index !== undefined) {
+        if (!isInCodePosItems(index, codePosItems)) {
+          // 不在代码块中的匹配
+          result.push(content.substring(lastStartIndex, match.index));
+          lastStartIndex = match.index + match[0].length;
+        }
+      }
+    }
+    result.push(content.substring(lastStartIndex, content.length));
+    return result;
   }
 }
