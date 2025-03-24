@@ -26,7 +26,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     let fenceType: MarkDefine | null = null;
 
     for (const mark of FenceMarks) {
-      if (content.startsWith(mark.START)) {
+      if (new RegExp(mark.START).test(content)) {
         fenceType = mark;
         break;
       }
@@ -42,12 +42,12 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
         const lineEnd = state.eMarks[currentLine];
         const lineContent = state.src.slice(lineStart, lineEnd);
 
-        if (lineContent.startsWith(fenceType.END)) {
+        if (new RegExp(fenceType.END).test(lineContent)) {
           items.push(currentItem.join('\n'));
           break;
         }
 
-        if (lineContent.startsWith(fenceType.SPLIT)) {
+        if (new RegExp(fenceType.SPLIT).test(lineContent)) {
           items.push(currentItem.join('\n'));
           currentItem = [];
           continue;

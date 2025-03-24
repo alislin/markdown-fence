@@ -15,14 +15,14 @@ export const FenceTag: MarkDefine = {
 };
 
 export const FenceShortTag: MarkDefine = {
-    START: '>>>',
-    END: '<<<',
-    SPLIT: '---',
+    START: '>>>.*',
+    END: '<<<.*',
+    SPLIT: '---.*',
     type: "short",
 };
 
 export function markString(src: string) {
-    return `<!-- ${src} -->`;
+    return `^<!-- .*${src} .*-->$`;
 }
 
 function getMarkDataWithType(data: MarkDefine): MarkDefine {
