@@ -59,6 +59,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
       // 生成 Token
       const token = state.push('custom_fence', 'div', 0);
       token.attrSet('class', fenceType.blockClass!);
+      token.attrSet('fence-type', fenceType.type);
       token.map = [startLine, currentLine];
       token.content = items.join(`\n${fenceType.SPLIT}\n`);
       token.block = true;
@@ -72,13 +73,10 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
   md.renderer.rules.custom_fence = (tokens, idx) => {
     const content = tokens[idx].content;
     const blockClass = (tokens[idx].attrGet('class') || '').split(' ').map(x => x.trim());
+    const types = (tokens[idx].attrGet('fence-type') || '').split(' ').map(x => x.trim());
 
     let fenceType: MarkDefine | undefined;
-    if (blockClass.includes(FenceMarks[0].blockClass!)) {
-      fenceType = FenceMarks.find(mark => mark.blockClass === FenceMarks[0].blockClass);
-    } else {
-      fenceType = FenceMarks.find(mark => mark.blockClass === FenceMarks[1].blockClass);
-    }
+    fenceType = FenceMarks.find(x => types.includes(x.type))??FenceMarks[0];
 
     const itemClass = fenceType?.itemClass || '';
     const splitMark = fenceType?.SPLIT || '';
@@ -102,6 +100,6 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
       return `<div class="${itemClass}">${titleHtml}${contentHtml}</div>`;
     }).join('\n');
 
-    return `<div class="${blockClass.join(" ")}">\n${renderedItems}\n</div>`;
+    return `<div class="${blockClass.join(" ")}" fence-type="${types.join(" ")}">\n${renderedItems}\n</div>`;
   };
 }

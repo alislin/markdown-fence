@@ -19,8 +19,6 @@ export const FenceShortTag: MarkDefine = {
     END: '<<<',
     SPLIT: '---',
     type: "short",
-    blockClass: "fence-short-block",
-    itemClass: "fence-short-item",
 };
 
 export function markString(src: string) {
