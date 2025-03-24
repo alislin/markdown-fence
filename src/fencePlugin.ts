@@ -6,7 +6,7 @@
  * @Description: fence 实现
  */
 import MarkdownIt from 'markdown-it';
-import { FenceMarks, MarkDefineWithType } from './fenceMark';
+import { FenceMarks, MarkDefine } from './fenceMark';
 
 interface FencePluginOptions {
   fenceStyle?: string;
@@ -15,8 +15,6 @@ interface FencePluginOptions {
 export type { FencePluginOptions };
 
 export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions = {}) {
-  const fenceBlockClass = 'fence-block';
-  const fenceItemClass = 'fence-item';
 
   md.block.ruler.before('fence', 'custom_fence', (state, startLine, endLine, silent) => {
     const start = state.bMarks[startLine] + state.tShift[startLine];
@@ -25,7 +23,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
     // 检测起始标记
     let currentLine = startLine;
-    let fenceType: MarkDefineWithType | null = null;
+    let fenceType: MarkDefine | null = null;
 
     for (const mark of FenceMarks) {
       if (content.startsWith(mark.START)) {
@@ -60,7 +58,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
       // 生成 Token
       const token = state.push('custom_fence', 'div', 0);
-      token.attrSet('class', fenceType.type === 'long' ? fenceBlockClass : 'fence-short-block');
+      token.attrSet('class', fenceType.blockClass!);
       token.map = [startLine, currentLine];
       token.content = items.join(`\n${fenceType.SPLIT}\n`);
       token.block = true;
@@ -75,13 +73,15 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     const content = tokens[idx].content;
     const blockClass = (tokens[idx].attrGet('class') || '').split(' ').map(x => x.trim());
 
-    let splitMark: string;
-    if (blockClass.includes('fence-block')) {
-      splitMark = FenceMarks.find(mark => mark.type === 'long')?.SPLIT || '';
+    let fenceType: MarkDefine | undefined;
+    if (blockClass.includes(FenceMarks[0].blockClass!)) {
+      fenceType = FenceMarks.find(mark => mark.blockClass === FenceMarks[0].blockClass);
     } else {
-      splitMark = FenceMarks.find(mark => mark.type === 'short')?.SPLIT || '';
+      fenceType = FenceMarks.find(mark => mark.blockClass === FenceMarks[1].blockClass);
     }
-    const itemClass = blockClass.includes('fence-block') ? fenceItemClass : 'fence-short-item';
+
+    const itemClass = fenceType?.itemClass || '';
+    const splitMark = fenceType?.SPLIT || '';
     const items = content.split(`\n${splitMark}\n`);
 
     const renderedItems = items.map(item => {
