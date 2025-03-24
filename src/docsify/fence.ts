@@ -2,101 +2,154 @@
  * @Author: Lin Ya
  * @Date: 2025-03-20 19:51:38
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-23 00:08:55
+ * @LastEditTime: 2025-03-24 18:18:09
  * @Description: fence docsify plugin
  */
 function fence(hook: any, vm: any) {
-  const FenceTag = {
+  interface MarkDefine {
+    START: string;
+    END: string;
+    SPLIT: string;
+    type: string;
+    blockClass?: string;
+    itemClass?: string;
+  }
+
+  const FenceTag: MarkDefine = {
     START: 'fence:start',
     END: 'fence:end',
     SPLIT: 'fence',
+    type: "long",
   };
 
-  const FenceShortTag = {
-    START: '>>>',
-    END: '<<<',
-    SPLIT: '---',
+  const FenceShortTag: MarkDefine = {
+    START: '>>>+',
+    END: '<<<+',
+    SPLIT: '---+',
+    type: "short",
+  };
+
+  const FenceMainTag: MarkDefine = {
+    START: '\/(&gt;){3,}',
+    END: '\/(&lt;){3,}',
+    SPLIT: '\/---+',
+    type: "main",
+    blockClass: "fence-block",
+    itemClass: "fence-item",
   };
 
   function markString(src: string) {
-    return `<!-- ${src} -->`;
+    return `<!-- *?${src}? *-->`;
   }
+
+  function getMarkDataWithType(data: MarkDefine): MarkDefine {
+    return {
+      type: data.type,
+      START: markString(data.START),
+      END: markString(data.END),
+      SPLIT: markString(data.SPLIT),
+      blockClass: data.blockClass ?? "fence-block",
+      itemClass: data.itemClass ?? "fence-item",
+    };
+  }
+
+  const FenceMarks: MarkDefine[] = [
+    getMarkDataWithType(FenceTag),
+    getMarkDataWithType(FenceShortTag),
+    FenceMainTag,
+  ];
+
+
   hook.afterEach(function (html: string, next: any) {
-    const FENCE_START_MARK = markString(FenceTag.START);
-    const FENCE_END_MARK = markString(FenceTag.END);
-    const FENCE_SPLIT_MARK = markString(FenceTag.SPLIT);
-
-    const FENCE_SHORT_START_MARK = markString(FenceShortTag.START);
-    const FENCE_SHORT_END_MARK = markString(FenceShortTag.END);
-    const FENCE_SHORT_SPLIT_MARK = markString(FenceShortTag.SPLIT);
-
-    let newHtml = html;
-    let startIndex = newHtml.indexOf(FENCE_START_MARK);
-
-    while (startIndex !== -1) {
-      const endIndex = newHtml.indexOf(FENCE_END_MARK, startIndex);
-      if (endIndex === -1) {
-        break;
-      }
-
-      const fenceContent = newHtml.substring(startIndex + FENCE_START_MARK.length, endIndex);
-      const items = fenceContent.split(FENCE_SPLIT_MARK);
-
-      const renderedItems = items.map(item => {
-        const lines = item.trim().split('\n');
-        if (lines.length > 0 && /<p><strong>(.+?)<\/strong><\/p>/.test(lines[0])) {
-          // 移除加粗语法获取普通文本
-          const match = /<p><strong>(.+?)<\/strong><\/p>(.*)/.exec(lines[0]);
-          if (match && match[1]) {
-            const title = match[1].toString();
-            lines[0] = `<div class="fence-title">${(title)}</div>${match[2]}`;
-            item = lines.join('\n');
-          }
-        }
-        return `<div class="fence-item">${item.trim()}</div>`;
-      }).join('\n');
-
-      newHtml = newHtml.substring(0, startIndex) +
-        `<div class="fence-block">\n${renderedItems}\n</div>` +
-        newHtml.substring(endIndex + FENCE_END_MARK.length);
-
-      startIndex = newHtml.indexOf(FENCE_START_MARK);
-    }
-
-    // 处理 FenceShortTag
-    let shortStartIndex = newHtml.indexOf(FENCE_SHORT_START_MARK);
-    while (shortStartIndex !== -1) {
-      const shortEndIndex = newHtml.indexOf(FENCE_SHORT_END_MARK, shortStartIndex);
-      if (shortEndIndex === -1) {
-        break;
-      }
-
-      const fenceContent = newHtml.substring(shortStartIndex + FENCE_SHORT_START_MARK.length, shortEndIndex);
-      const items = fenceContent.split(FENCE_SHORT_SPLIT_MARK);
-
-      const renderedItems = items.map(item => {
-        const lines = item.trim().split('\n');
-        if (lines.length > 0 && /<p><strong>(.+?)<\/strong><\/p>/.test(lines[0])) {
-          // 移除加粗语法获取普通文本
-          const match = /<p><strong>(.+?)<\/strong><\/p>(.*)/.exec(lines[0]);
-          if (match && match[1]) {
-            const title = match[1].toString();
-            lines[0] = `<div class="fence-title">${(title)}</div>${match[2]}`;
-            item = lines.join('\n');
-          }
-        }
-        return `<div class="fence-short-item">${item.trim()}</div>`;
-      }).join('\n');
-
-      newHtml = newHtml.substring(0, shortStartIndex) +
-        `<div class="fence-short-block">\n${renderedItems}\n</div>` +
-        newHtml.substring(shortEndIndex + FENCE_SHORT_END_MARK.length);
-
-      shortStartIndex = newHtml.indexOf(FENCE_SHORT_START_MARK);
-    }
-
+    const newHtml = render(html);
     next(newHtml);
   });
 
 
+
+  function render(html: string) {
+    let newHtml = "";
+    let result = tagRender(html);
+    while (result.hasNext) {
+      newHtml += result.renderHtml;
+      result = tagRender(result.remainHtml);
+    }
+    newHtml += result.renderHtml;
+    return newHtml;
+  }
+
+  function tagRender(newHtml?: string) {
+    if (!newHtml) {
+      return { renderHtml: "", hasNext: false };
+    }
+    // 1. 找到起始标签
+    let fenceType: MarkDefine | null = null;
+    let firstMatchIndex = Infinity;
+    for (const mark of FenceMarks) {
+      const match = newHtml.match(new RegExp(mark.START));
+      if (match && match.index !== undefined && match.index < firstMatchIndex) {
+        fenceType = mark;
+        firstMatchIndex = match.index;
+      }
+    }
+
+    // 2. 如果找到了起始标签，则进行解析
+    if (fenceType) {
+      let startIndex = 0;
+      let endIndex = 0;
+
+      // 找到起始标签的索引
+      const startRegex = new RegExp(fenceType.START);
+      const startMatch = newHtml.match(startRegex);
+      let startMatchLen = 0;
+      if (startMatch) {
+        startIndex = startMatch.index ?? 0;
+        startMatchLen = startMatch[0].length;
+        startIndex += startMatchLen;
+      }
+
+      // 找到结束标签的索引
+      const endRegex = new RegExp(fenceType.END);
+      const endMatch = newHtml.match(endRegex);
+      if (endMatch) {
+        endIndex = endMatch.index ?? 0;
+      } else {
+        console.error(`未找到结束标签 ${fenceType.END}`);
+        return { renderHtml: newHtml, hasNext: false };
+      }
+
+      // 3. 扫描直到结束标记
+      if (startIndex !== -1 && endIndex !== -1) {
+        const content = newHtml.substring(startIndex, endIndex);
+        const splitMark = fenceType.SPLIT;
+        const items = content.split(new RegExp(splitMark));
+
+        const renderedItems = items.map(item => {
+          const lines = item.trim().split('\n');
+          // let titleHtml = '';
+          if (lines.length > 0 && /<p><strong>(.+?)<\/strong><\/p>/.test(lines[0])) {
+            // 移除加粗语法获取普通文本
+            const match = /<p><strong>(.+?)<\/strong><\/p>(.*)/.exec(lines[0]);
+            if (match && match[1]) {
+              const title = match[1].toString();
+              // titleHtml = `<div class="fence-title">${(title)}</div>${match[2]}`;
+              lines[0] = `<div class="fence-title">${(title)}</div>${match[2]}`;
+              item = lines.join('\n');
+            }
+          }
+          return `<div class="fence-item">${render(item.trim())}</div>`;
+        }).join('\n');
+
+        const renderHtml = newHtml.substring(0, startIndex - startMatchLen) +
+          `<div class="fence-block">\n${renderedItems}\n</div>`;
+
+        // 计算剩余文本开始位置
+        endIndex += endMatch ? endMatch[0].length : 0;
+        const remainHtml = newHtml.substring(endIndex);
+
+        return { renderHtml: renderHtml, remainHtml: remainHtml, hasNext: endIndex > 0 && remainHtml.length > 0 };
+      }
+    }
+    return { renderHtml: newHtml, hasNext: false };
+  }
 }

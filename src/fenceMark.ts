@@ -1,3 +1,10 @@
+/*
+ * @Author: Lin Ya
+ * @Date: 2025-03-24 07:43:40
+ * @LastEditors: Lin Ya
+ * @LastEditTime: 2025-03-24 18:13:06
+ * @Description: file content
+ */
 export interface MarkDefine {
     START: string;
     END: string;
@@ -15,14 +22,23 @@ export const FenceTag: MarkDefine = {
 };
 
 export const FenceShortTag: MarkDefine = {
-    START: '>>>.*',
-    END: '<<<.*',
-    SPLIT: '---.*',
+    START: '>>>+',
+    END: '<<<+',
+    SPLIT: '---+',
     type: "short",
 };
 
+export const FenceMainTag: MarkDefine = {
+    START: '\/>{3,}',
+    END: '\/<{3,}',
+    SPLIT: '\/---+',
+    type: "main",
+    blockClass: "fence-block",
+    itemClass: "fence-item",
+};
+
 export function markString(src: string) {
-    return `^<!-- .*${src} .*-->$`;
+    return `<!-- *?${src}? *-->`;
 }
 
 function getMarkDataWithType(data: MarkDefine): MarkDefine {
@@ -38,5 +54,6 @@ function getMarkDataWithType(data: MarkDefine): MarkDefine {
 
 export const FenceMarks: MarkDefine[] = [
     getMarkDataWithType(FenceTag),
-    getMarkDataWithType(FenceShortTag)
+    getMarkDataWithType(FenceShortTag),
+    FenceMainTag,
 ];

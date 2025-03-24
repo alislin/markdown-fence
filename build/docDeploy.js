@@ -45,7 +45,8 @@ async function deploy() {
     const excludeTargets = [
       'test/**/*',
       '**/extension.*',
-      '**/*.scss'
+      '**/*.scss',
+      '**/*.map'
     ];
 
     // 循环复制目标

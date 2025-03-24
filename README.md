@@ -26,10 +26,23 @@ Use markers to split into multi-column styles
 - `<!-- <<< -->`
 
 <!-- fence -->
+**简写语法 Short syntax**
+
+> 会在不支持的 markdown 解析器中留下分栏可见字符  
+> Column-visible characters are left in unsupported markdown parsers
+
+使用下面标记进行分隔，后续字符三个以上至任意数量都可以  
+Use the following tags to separate them, and more than three or more characters are acceptable to any number
+- `/>>>`
+- `/---`
+- `/<<<`
+
+<!-- fence -->
 **分栏标题 Column headings**
 
 在分栏第一行使用加粗的文本，并且在后续保持一个空行。这行就会解析为分栏标题。  
 Use bold text on the first line of the column and keep a blank line for the follow-up. This line resolves to a section header.
+
 `**标题 title**`  
 `<空行 empty row>`
 <!-- fence:end -->
