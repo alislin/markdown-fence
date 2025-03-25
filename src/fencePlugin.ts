@@ -2,11 +2,12 @@
  * @Author: Lin Ya
  * @Date: 2025-03-19 21:38:00
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-22 23:43:19
+ * @LastEditTime: 2025-03-25 17:53:04
  * @Description: fence 实现
  */
 import MarkdownIt from 'markdown-it';
 import { FenceMarks, MarkDefine } from './fenceMark';
+import { stat } from 'fs';
 
 interface FencePluginOptions {
   fenceStyle?: string;
@@ -16,6 +17,22 @@ export type { FencePluginOptions };
 
 export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions = {}) {
 
+  let isScanCodeBlock = false;
+  let code_block: { start: number, end: number }[] = [];
+
+  md.block.ruler.before('fence', 'code_block_begin', (state, startLine, endLine, silent) => {
+    if (isScanCodeBlock) {
+      return false;
+    }
+    const content = state.src;
+    code_block = scanCodePostItems(content);
+    isScanCodeBlock = true;
+    console.log(code_block);
+
+    return false;
+  });
+
+
   md.block.ruler.before('fence', 'custom_fence', (state, startLine, endLine, silent) => {
     const start = state.bMarks[startLine] + state.tShift[startLine];
     const max = state.eMarks[startLine];
@@ -24,11 +41,13 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     // 检测起始标记
     let currentLine = startLine;
     let fenceType: MarkDefine | null = null;
+    let firstMatchIndex = Infinity;
 
     for (const mark of FenceMarks) {
-      if (new RegExp(mark.START).test(content)) {
+      const match = getTagMatch(content, mark.START, code_block);
+      if (match && match.index !== undefined && match.index < firstMatchIndex) {
         fenceType = mark;
-        break;
+        firstMatchIndex = match.index;
       }
     }
 
@@ -38,19 +57,21 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
       // 扫描直到结束标记
       while (currentLine++ < endLine) {
-        const lineStart = state.bMarks[currentLine] + state.tShift[currentLine];
-        const lineEnd = state.eMarks[currentLine];
-        const lineContent = state.src.slice(lineStart, lineEnd);
+        if (!isInCodePosItems(currentLine, code_block)) {
+          const lineStart = state.bMarks[currentLine] + state.tShift[currentLine];
+          const lineEnd = state.eMarks[currentLine];
+          const lineContent = state.src.slice(lineStart, lineEnd);
 
-        if (new RegExp(fenceType.END).test(lineContent)) {
-          items.push(currentItem.join('\n'));
-          break;
-        }
+          if (new RegExp(fenceType.END).test(lineContent)) {
+            items.push(currentItem.join('\n'));
+            break;
+          }
 
-        if (new RegExp(fenceType.SPLIT).test(lineContent)) {
-          items.push(currentItem.join('\n'));
-          currentItem = [];
-          continue;
+          if (new RegExp(fenceType.SPLIT).test(lineContent)) {
+            items.push(currentItem.join('\n'));
+            currentItem = [];
+            continue;
+          }
         }
 
         currentItem.push(state.src.slice(state.bMarks[currentLine], state.eMarks[currentLine]));
@@ -76,7 +97,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     const types = (tokens[idx].attrGet('fence-type') || '').split(' ').map(x => x.trim());
 
     let fenceType: MarkDefine | undefined;
-    fenceType = FenceMarks.find(x => types.includes(x.type))??FenceMarks[0];
+    fenceType = FenceMarks.find(x => types.includes(x.type)) ?? FenceMarks[0];
 
     const itemClass = fenceType?.itemClass || '';
     const splitMark = fenceType?.SPLIT || '';
@@ -103,3 +124,74 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     return `<div class="${blockClass.join(" ")}" fence-type="${types.join(" ")}">\n${renderedItems}\n</div>`;
   };
 }
+
+function scanCodePostItems(content: string) {
+  let code_flag = false;
+  let code_block: { start: number; end: number; }[] = [];
+  const rows = content.split("\n");
+  let pos_start = 0;
+  let pos_end = 0;
+  // 扫描所有标记，记录
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (/^```/.test(row)) {
+      code_flag = !code_flag;
+      if (code_flag) {
+        pos_start = i;
+      }
+      else {
+        pos_end = i;
+        code_block.push({ start: pos_start, end: pos_end });
+      }
+    }
+  }
+  return code_block;
+}
+
+function getTagMatch(content: string, mark: string, codePosItems: { start: number; end: number }[]) {
+  // 查找有效的标志（添加全局标志以支持连续匹配）
+  const regex = new RegExp(mark, 'g');
+  let match;
+  while ((match = regex.exec(content)) !== null) { // 循环所有匹配
+    const index = match.index;
+    if (index !== undefined) {
+      if (!isInCodePosItems(index, codePosItems)) {
+        return match; // 返回第一个不在代码块中的匹配
+      }
+    }
+  }
+  return undefined; // 未找到有效匹配
+}
+
+function isInCodePosItems(index: number, codePosItems: { start: number; end: number }[]): boolean {
+  for (const codePos of codePosItems) {
+    if (index >= codePos.start && index <= codePos.end) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function splitByMark(content: string, splitMark: string): string[] {
+  // 扫描全文，匹配所有的 <code[^>]*>.*?</code>，将匹配块的开始和结束位置记录到 codePosItems 中。
+  const codePosItems = scanCodePostItems(content);
+  const result: string[] = [];
+
+  // 查找有效的标志（添加全局标志以支持连续匹配）
+  const regex = new RegExp(splitMark, 'g');
+  let match;
+  let lastStartIndex = 0;
+  while ((match = regex.exec(content)) !== null) { // 循环所有匹配
+    const index = match.index;
+    if (index !== undefined) {
+      if (!isInCodePosItems(index, codePosItems)) {
+        // 不在代码块中的匹配
+        result.push(content.substring(lastStartIndex, match.index));
+        lastStartIndex = match.index + match[0].length;
+      }
+    }
+  }
+  result.push(content.substring(lastStartIndex, content.length));
+  return result;
+}
+

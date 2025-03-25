@@ -2,7 +2,7 @@
  * @Author: Lin Ya
  * @Date: 2025-03-24 07:43:40
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-25 08:22:49
+ * @LastEditTime: 2025-03-25 17:18:05
  * @Description: 语法标记定义
  */
 export interface MarkDefine {
