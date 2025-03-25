@@ -8,6 +8,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Fixed
 - 代码中的语法标记处理
 
+## [1.0.7] - 2025-03-25
+### Fixed
+- 代码中的语法标记处理
+
 ## [1.0.6] - 2025-03-24
 ### Added
 - 增加新的语法支持，为下一步提供Obsidian支持
