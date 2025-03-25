@@ -41,13 +41,11 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     // 检测起始标记
     let currentLine = startLine;
     let fenceType: MarkDefine | null = null;
-    let firstMatchIndex = Infinity;
 
     for (const mark of FenceMarks) {
-      const match = getTagMatch(content, mark.START, code_block);
-      if (match && match.index !== undefined && match.index < firstMatchIndex) {
+      if (testTagMatch(content, mark.START, code_block)) {
         fenceType = mark;
-        firstMatchIndex = match.index;
+        break;
       }
     }
 
@@ -62,12 +60,12 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
           const lineEnd = state.eMarks[currentLine];
           const lineContent = state.src.slice(lineStart, lineEnd);
 
-          if (new RegExp(fenceType.END).test(lineContent)) {
+          if (testTagMatch(lineContent, fenceType.END, code_block)) {
             items.push(currentItem.join('\n'));
             break;
           }
 
-          if (new RegExp(fenceType.SPLIT).test(lineContent)) {
+          if (testTagMatch(lineContent, fenceType.SPLIT, code_block)) {
             items.push(currentItem.join('\n'));
             currentItem = [];
             continue;
@@ -148,19 +146,14 @@ function scanCodePostItems(content: string) {
   return code_block;
 }
 
-function getTagMatch(content: string, mark: string, codePosItems: { start: number; end: number }[]) {
-  // 查找有效的标志（添加全局标志以支持连续匹配）
-  const regex = new RegExp(mark, 'g');
-  let match;
-  while ((match = regex.exec(content)) !== null) { // 循环所有匹配
-    const index = match.index;
-    if (index !== undefined) {
-      if (!isInCodePosItems(index, codePosItems)) {
-        return match; // 返回第一个不在代码块中的匹配
-      }
-    }
+
+function testTagMatch(line: string, mark: string, codePosItems: { start: number; end: number }[]) {
+  const regex = new RegExp(mark);
+  const lineMark = new RegExp(`\`.*?${mark}.*?\``);
+  if (regex.test(line) && !lineMark.test(line)) {
+    return true;
   }
-  return undefined; // 未找到有效匹配
+  return false;
 }
 
 function isInCodePosItems(index: number, codePosItems: { start: number; end: number }[]): boolean {
@@ -171,27 +164,3 @@ function isInCodePosItems(index: number, codePosItems: { start: number; end: num
   }
   return false;
 }
-
-function splitByMark(content: string, splitMark: string): string[] {
-  // 扫描全文，匹配所有的 <code[^>]*>.*?</code>，将匹配块的开始和结束位置记录到 codePosItems 中。
-  const codePosItems = scanCodePostItems(content);
-  const result: string[] = [];
-
-  // 查找有效的标志（添加全局标志以支持连续匹配）
-  const regex = new RegExp(splitMark, 'g');
-  let match;
-  let lastStartIndex = 0;
-  while ((match = regex.exec(content)) !== null) { // 循环所有匹配
-    const index = match.index;
-    if (index !== undefined) {
-      if (!isInCodePosItems(index, codePosItems)) {
-        // 不在代码块中的匹配
-        result.push(content.substring(lastStartIndex, match.index));
-        lastStartIndex = match.index + match[0].length;
-      }
-    }
-  }
-  result.push(content.substring(lastStartIndex, content.length));
-  return result;
-}
-
