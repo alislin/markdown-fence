@@ -2,12 +2,13 @@
 
 ![](/media/markdown-fence-128.png)
 
-vscode 扩展 Markdown Fence  
-vscode extension "markdown fence". 
+vscode 扩展 Markdown Fence 支持多列语法  
+The vscode extension "Markdown Fence" supports multi-column syntax
 
 ![](https://alislin.github.io/markdown-fence/assets/img/README_20250320-092003.png)
 
 ## 功能 Features
+
 <!-- fence:start -->
 **标准语法 Standard syntax**
 
@@ -16,6 +17,7 @@ Use markers to split into multi-column styles
 - `<!-- fence:start -->`
 - `<!-- fence -->`
 - `<!-- fence:end -->`
+
 <!-- fence -->
 **快速语法 Short syntax**
 
@@ -53,6 +55,10 @@ Use bold text on the first line of the column and keep a blank line for the foll
 Support export of HTML and PDF formats
 - `Markdown Fence: Export to HTML`
 - `Markdown Fence: Export to PDF`
+
+> 可在 vscode 参数中设置页眉和页脚和其他相关参数   
+> You can set the header and footer and other related parameters in the vscode parameter
+
 <!-- >>> -->
 
 **markdown**
@@ -69,6 +75,7 @@ markdown content:
 横向分隔
 <!-- fence:end -->
 ```
+
 <!-- --- -->
 
 **预览**

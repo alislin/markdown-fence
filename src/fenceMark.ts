@@ -2,8 +2,8 @@
  * @Author: Lin Ya
  * @Date: 2025-03-24 07:43:40
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-24 18:13:06
- * @Description: file content
+ * @LastEditTime: 2025-03-25 08:22:49
+ * @Description: 语法标记定义
  */
 export interface MarkDefine {
     START: string;
@@ -18,7 +18,7 @@ export const FenceTag: MarkDefine = {
     START: 'fence:start',
     END: 'fence:end',
     SPLIT: 'fence',
-    type: "long",
+    type: "standard",
 };
 
 export const FenceShortTag: MarkDefine = {

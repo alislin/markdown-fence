@@ -106,16 +106,14 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "node esbuild.config.js",
-    "copy-css": "copyfiles ./css/**/*.css ./out -u 1",
-    "copy-snippets": "copyfiles ./snippets/**/*.json ./out -u 1",
     "veradd": "node build/verAdd.js",
+    "doc:deploy": "npm run build-css && tsc -p tsconfig.docsify.json && node build/docDeploy.js",
     "package": "vsce package",
     "watch": "tsc -watch -p ./",
     "test": "vscode-test",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "build-css": "sass css/fence.scss css/fence.css",
-    "doc:deploy": "npm run build-css && tsc -p tsconfig.docsify.json && node build/docDeploy.js"
+    "build-css": "sass css/fence.scss css/fence.css"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",
