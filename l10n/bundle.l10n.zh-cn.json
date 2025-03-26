@@ -1,4 +1,15 @@
 {
     "There are unclosed fence blocks (start markers: {0},endmarkers:{1}).": "存在未闭合的 fence 块 (开始标记: {0}, 结束标记: {1})",
-    "Excess end markers": "多余的结束标记"
+    "Excess end markers": "多余的结束标记",
+    "Successfully exported PDF file to {0}": "成功导出 PDF 文件到 {0}",
+    "Failed to export PDF file: {0}": "导出 PDF 文件失败: {0}",
+    "Successfully exported HTML file to {0}": "成功导出 HTML 文件到 {0}",
+    "Failed to export HTML file: {0}": "导出 HTML 文件失败: {0}",
+    "Only HTML and PDF formats are supported": "仅支持导出 HTML 和 PDF 格式",
+    "No Markdown document is open": "没有打开的 Markdown 文档",
+    "The current document is not a Markdown document": "当前文档不是 Markdown 文档",
+    "Document generation failed: {0}": "文档生成失败: {0}",
+    "Failed to convert image to base64: {0}": "无法将图片转换为 base64: {0}",
+    "Mermaid rendering error:": "Mermaid 渲染错误:",
+    "Error occurred while processing Mermaid:": "处理 Mermaid 时发生错误:"
 }

@@ -80,9 +80,9 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			await browser.close();
 
 			// 显示成功消息
-			vscode.window.showInformationMessage(`成功导出 PDF 文件到 ${pdfPath}`);
+			vscode.window.showInformationMessage(vscode.l10n.t(`Successfully exported PDF file to {0}`, pdfPath));
 		} catch (error: any) {
-			vscode.window.showErrorMessage(`导出 PDF 文件失败: ${error.message}`);
+			vscode.window.showErrorMessage(vscode.l10n.t(`Failed to export PDF file: {0}`, error.message));
 		}
 
 		return;
@@ -94,15 +94,15 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			// 将 HTML 文件写入磁盘
 			await fs.promises.writeFile(htmlPath, html, 'utf8');
 			// 显示成功消息
-			vscode.window.showInformationMessage(`成功导出 HTML 文件到 ${htmlPath}`);
+			vscode.window.showInformationMessage(vscode.l10n.t(`Successfully exported HTML file to {0}`, htmlPath));
 
 		} catch (error: any) {
-			vscode.window.showErrorMessage(`导出 HTML 文件失败: ${error.message}`);
+			vscode.window.showErrorMessage(vscode.l10n.t(`Failed to export HTML file: {0}`, error.message));
 		}
 	}
 
 	else {
-		vscode.window.showErrorMessage('仅支持导出 HTML 和 PDF 格式');
+		vscode.window.showErrorMessage(vscode.l10n.t('Only HTML and PDF formats are supported'));
 		return;
 	}
 }
@@ -145,7 +145,7 @@ async function handleMermaidRendering(page: Page, log: any): Promise<void> {
 					});
 				}
 			} catch (e) {
-				console.error('Mermaid 渲染错误:', e);
+				console.error(vscode.l10n.t('Mermaid rendering error:'), e);
 			}
 		});
 
@@ -164,7 +164,7 @@ async function handleMermaidRendering(page: Page, log: any): Promise<void> {
 		});
 
 	} catch (error) {
-		console.error('处理 Mermaid 时发生错误:', error);
+		console.error(vscode.l10n.t('Error occurred while processing Mermaid:'), error);
 		throw error;
 	}
 }
@@ -199,7 +199,7 @@ async function imageToBase64(imagePath: string, filePath: string): Promise<strin
 			return `data:${mimeType};base64,${base64}`;
 		}
 	} catch (error: any) {
-		vscode.window.showErrorMessage(`Failed to convert image to base64: ${error.message}`);
+		vscode.window.showErrorMessage(vscode.l10n.t(`Failed to convert image to base64: {0}`, error.message));
 		return '';
 	}
 }
@@ -223,12 +223,12 @@ async function markdownRender() {
 	// 获取当前活动的文本编辑器
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
-		vscode.window.showErrorMessage('没有打开的 Markdown 文档');
+		vscode.window.showErrorMessage(vscode.l10n.t('No Markdown document is open'));
 		return;
 	}
 
 	if (editor.document.languageId !== 'markdown') {
-		vscode.window.showErrorMessage('当前文档不是 Markdown 文档');
+		vscode.window.showErrorMessage(vscode.l10n.t('The current document is not a Markdown document'));
 		return;
 	}
 
@@ -316,6 +316,6 @@ async function markdownRender() {
 		};
 	}
 	catch (error: any) {
-		vscode.window.showErrorMessage(`文档生成失败: ${error.message}`);
+		vscode.window.showErrorMessage(vscode.l10n.t(`Document generation failed: {0}`, error.message));
 	}
 }
