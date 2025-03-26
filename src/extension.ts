@@ -2,7 +2,7 @@
  * @Author: Lin Ya
  * @Date: 2025-02-20 17:17:55
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-19 11:55:35
+ * @LastEditTime: 2025-03-26 16:18:56
  * @Description: markdown fence
  */
 // The module 'vscode' contains the VS Code extensibility API
@@ -28,11 +28,11 @@ export function activate(context: vscode.ExtensionContext) {
 				fenceStartSnippet.insertText = new vscode.SnippetString(
 					'<!-- fence:start -->\n$1\n<!-- fence -->\n$2\n<!-- fence:end -->'
 				);
-				fenceStartSnippet.documentation = 'Create a fence block container';
+				fenceStartSnippet.documentation = vscode.l10n.t('snippet.fenceStart', 'Create a fence block container');
 
 				const fenceSplitSnippet = new vscode.CompletionItem('fence');
 				fenceSplitSnippet.insertText = new vscode.SnippetString('<!-- fence -->');
-				fenceSplitSnippet.documentation = 'Add a split point in fence block';
+				fenceSplitSnippet.documentation = vscode.l10n.t('snippet.fence', 'Add a split point in fence block');
 
 				return [fenceStartSnippet, fenceSplitSnippet];
 			}
@@ -89,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			diagnostics.push(new vscode.Diagnostic(
 				range,
-				`存在未闭合的 fence 块 (开始标记: ${startMarkers.length}, 结束标记: ${endMarkers.length})`,
+				vscode.l10n.t('There are unclosed fence blocks (start markers: {0},endmarkers:{1}).', startMarkers.length, endMarkers.length),
 				vscode.DiagnosticSeverity.Error
 			));
 		}
@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
 					const pos = document.positionAt(match.index!);
 					diagnostics.push(new vscode.Diagnostic(
 						new vscode.Range(pos, pos),
-						'多余的结束标记',
+						vscode.l10n.t('Excess end markers'),
 						vscode.DiagnosticSeverity.Error
 					));
 				} else {

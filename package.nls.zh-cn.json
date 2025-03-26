@@ -1,0 +1,15 @@
+{
+    "command.exportToHTML": "Markdown Fence: 导出为 HTML",
+    "command.exportToPDF": "Markdown Fence: 导出为 PDF",
+    "command.insertFence": "插入 Fence 块",
+    "config.export.header": "导出 PDF 头部 (html)",
+    "config.export.footer": "导出 PDF 尾部 (html). 关键词: {title}, {pageNumber}, {totalPages}",
+    "config.export.size": "导出 PDF 纸张大小",
+    "config.export.margin.top": "导出 PDF 边距顶部 (默认: 20mm)",
+    "config.export.margin.right": "导出 PDF 边距右侧 (默认: 5mm)",
+    "config.export.margin.bottom": "导出 PDF 边距底部 (默认: 10mm))",
+    "config.export.margin.left": "导出 PDF 边距左侧 (默认: 5mm)",
+    "snippet.fenceStart": "创建 fence 块容器",
+    "snippet.fence": "在 fence 块中添加分割点",
+    "error.unclosedFence": "存在未闭合的 fence 块 (开始标记: ${startMarkers.length}, 结束标记: ${endMarkers.length})"
+}

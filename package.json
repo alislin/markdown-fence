@@ -17,20 +17,21 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "l10n": "./l10n",
   "contributes": {
     "markdown.markdownItPlugins": true,
     "commands": [
       {
         "command": "extension.exportToHTML",
-        "title": "Markdown Fence: Export to HTML"
+        "title": "%command.exportToHTML%"
       },
       {
         "command": "extension.exportToPDF",
-        "title": "Markdown Fence: Export to PDF"
+        "title": "%command.exportToPDF%"
       },
       {
         "command": "extension.insertFence",
-        "title": "Insert Fence Block",
+        "title": "%command.insertFence%",
         "category": "Markdown Fence"
       }
     ],
@@ -57,13 +58,13 @@
         "properties": {
           "markdown-fence.export.header": {
             "type": "string",
-            "description": "Export PDF header (html)",
+            "description": "%config.export.header%",
             "editPresentation": "multilineText",
             "order": 10
           },
           "markdown-fence.export.footer": {
             "type": "string",
-            "description": "Export PDF footer (html). keywords:{title},{pageNumber},{totalPages}",
+            "description": "%config.export.footer%",
             "editPresentation": "multilineText",
             "order": 20
           },
@@ -76,27 +77,27 @@
               "Legal"
             ],
             "default": "A4",
-            "description": "Export PDF paper size",
+            "description": "%config.export.size%",
             "order": 1
           },
           "markdown-fence.export.margin.top": {
             "type": "string",
-            "description": "Export PDF margins top (default: 20mm)",
+            "description": "%config.export.margin.top%",
             "order": 2
           },
           "markdown-fence.export.margin.right": {
             "type": "string",
-            "description": "Export PDF margins right (default: 5mm)",
+            "description": "%config.export.margin.right%",
             "order": 3
           },
           "markdown-fence.export.margin.bottom": {
             "type": "string",
-            "description": "Export PDF margins bottom (default: 10mm))",
+            "description": "%config.export.margin.bottom%",
             "order": 4
           },
           "markdown-fence.export.margin.left": {
             "type": "string",
-            "description": "Export PDF margins left (default: 5mm)",
+            "description": "%config.export.margin.left%",
             "order": 5
           }
         }
@@ -132,6 +133,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@vscode/l10n": "^0.0.10",
     "fs-extra": "^11.3.0",
     "markdown-it": "^14.1.0",
     "node-fetch": "^3.3.2",

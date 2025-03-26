@@ -1,0 +1,15 @@
+{
+    "command.exportToHTML": "Markdown Fence: Export to HTML",
+    "command.exportToPDF": "Markdown Fence: Export to PDF",
+    "command.insertFence": "Insert Fence Block",
+    "config.export.header": "Export PDF header (html)",
+    "config.export.footer": "Export PDF footer (html). keywords:{title},{pageNumber},{totalPages}",
+    "config.export.size": "Export PDF paper size",
+    "config.export.margin.top": "Export PDF margins top (default: 20mm)",
+    "config.export.margin.right": "Export PDF margins right (default: 5mm)",
+    "config.export.margin.bottom": "Export PDF margins bottom (default: 10mm))",
+    "config.export.margin.left": "Export PDF margins left (default: 5mm)",
+    "snippet.fenceStart": "Create a fence block container",
+    "snippet.fence": "Add a split point in fence block",
+    "error.unclosedFence":"存在未闭合的 fence 块 (开始标记: ${startMarkers.length}, 结束标记: ${endMarkers.length})"
+}
