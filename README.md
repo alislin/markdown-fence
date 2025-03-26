@@ -30,11 +30,11 @@ Use markers to split into multi-column styles
 <!-- fence -->
 **简写语法 Short syntax**
 
-> 会在不支持的 markdown 解析器中留下分栏可见字符  
-> Column-visible characters are left in unsupported markdown parsers
+> 如果 markdown 解析器不支持该语法，分栏文本将渲染为可见字符，在视觉上起分栏作用。  
+> If the markdown parser doesn't support this syntax, the columned text will be rendered as visible characters, which will visually act as a column.
 
 使用下面标记进行分隔，后续字符三个以上至任意数量都可以  
-Use the following tags to separate them, and more than three or more characters are acceptable to any number
+Use the following tags to separate, and any number of subsequent characters from three or more can be used.
 - `/>>>`
 - `/---`
 - `/<<<`
