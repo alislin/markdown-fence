@@ -46,7 +46,8 @@ async function deploy() {
       'test/**/*',
       '**/extension.*',
       '**/*.scss',
-      '**/*.map'
+      '**/*.map',
+      '**/*.test*'
     ];
 
     // 循环复制目标
