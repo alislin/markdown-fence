@@ -114,6 +114,7 @@
     "test": "vscode-test",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
+    "tnode": "node --force-node-api-uncaught-exceptions-policy=true",
     "build-css": "sass css/fence.scss css/fence.css"
   },
   "devDependencies": {
@@ -130,7 +131,8 @@
     "eslint": "^9.19.0",
     "gh-pages": "^6.3.0",
     "sass": "^1.86.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vscode-test": "^1.6.1"
   },
   "dependencies": {
     "@vscode/l10n": "^0.0.10",

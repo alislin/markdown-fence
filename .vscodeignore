@@ -24,3 +24,4 @@ out/**
 *.config.*
 **/*.map
 **/tsconfig.docsify.json
+**/*.test.*
