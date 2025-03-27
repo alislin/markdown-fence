@@ -6,7 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 ### Fixed
-- 代码中的语法标记处理
+
+## [1.0.8] - 2025-03-27
+
+### Added
+- 本地化支持
 
 ## [1.0.7] - 2025-03-25
 ### Fixed
