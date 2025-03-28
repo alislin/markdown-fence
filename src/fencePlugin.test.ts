@@ -11,9 +11,6 @@ suite('Fence Plugin Tests', () => {
     vscode.window.showInformationMessage('All tests done!');
   });
 
-  const md = new MarkdownIt();
-  md.use(fencePlugin);
-
   testData.forEach(testCase => {
     renderTest(testCase);
   });
@@ -21,8 +18,11 @@ suite('Fence Plugin Tests', () => {
   function renderTest(testCase: { title: string, input: string, except: string }) {
     const { title, input, except } = testCase;
     test(title, () => {
+      const md = new MarkdownIt();
+      md.use(fencePlugin);
+
       const result = md.render(input);
-      // console.log(title, normalizeString(result));
+      // console.log(title + " [input] ==> ", input);
 
       assert.strictEqual(normalizeString(result), normalizeString(except), `Test failed for : ${title}`);
     });

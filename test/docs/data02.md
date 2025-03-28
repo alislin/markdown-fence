@@ -27,3 +27,47 @@ left
 right
 <!-- {{fence:end}} -->
 
+##### 嵌套1
+<!-- {{fence:start}} -->
+<!-- >>> -->
+left
+<!-- {{fence}} -->
+right
+<!-- <<< -->
+<!-- {{fence:end}} -->
+
+##### 嵌套2
+<!-- {{fence:start}} -->
+<!-- {{fence:start}} -->
+left
+<!-- {{fence}} -->
+right
+<!-- {{fence:end}} -->
+<!-- {{fence:end}} -->
+
+
+##### 嵌套3
+<!-- {{fence:start}} -->
+/>>>
+left
+<!-- {{fence}} -->
+right
+/<<<
+<!-- {{fence:end}} -->
+
+##### 嵌套4
+<!-- {{fence:start}} -->
+/>>>
+left
+<!-- {{fence}} -->
+right
+/>>>
+in-left
+/---
+in-right
+/---
+in-third
+/<<<
+right-tail
+<!-- {{fence:end}} -->
+

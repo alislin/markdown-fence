@@ -76,7 +76,7 @@ function getFiles(dirPath: string) {
 
       if (stat.isDirectory()) {
         traverseDir(fullPath);
-      } else if (path.extname(entry) === ".md") {
+      } else if (path.extname(entry) === ".md" && entry.includes(".new.")>0) {
         files.push(fullPath);
       }
     }
