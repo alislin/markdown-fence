@@ -112,9 +112,10 @@
     "package": "vsce package",
     "watch": "tsc -watch -p ./",
     "test": "vscode-test",
+    "debug": "ts-node ./src/test/debug.ts",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test-data": "ts-node ./src/test/make-testdata.ts",
+    "generate-data": "ts-node ./src/test/make-testdata.ts",
     "build-css": "sass css/fence.scss css/fence.css"
   },
   "devDependencies": {

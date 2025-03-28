@@ -177,8 +177,8 @@ left
 <!-- fence -->
 right
 <!-- fence:end -->`,
-    except:`<div class="fence-block" fence-type="short">
-<div class="fence-item"><p>&lt;!-- fence:start --&gt;</p><p>right</p></div>
+    except:`<div class="fence-block" fence-type="standard">
+<div class="fence-item"><p>&lt;!-- fence:start --&gt;</p><p>left</p><p>left</p></div>
 <div class="fence-item"><p>right</p>
 </div>
 </div>`,

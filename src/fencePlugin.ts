@@ -53,6 +53,8 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
       const items: string[] = [];
       let currentItem: string[] = [];
 
+      let end_mark_checked = false;
+
       // 扫描直到结束标记
       while (currentLine++ < endLine) {
         if (!isInCodePosItems(currentLine, code_block)) {
@@ -62,6 +64,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
           if (testTagMatch(lineContent, fenceType.END, code_block)) {
             items.push(currentItem.join('\n'));
+            end_mark_checked = true;
             break;
           }
 
@@ -73,6 +76,10 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
         }
 
         currentItem.push(state.src.slice(state.bMarks[currentLine], state.eMarks[currentLine]));
+      }
+      if (!end_mark_checked) {
+        // 语法未闭合
+        return false;
       }
 
       // 生成 Token

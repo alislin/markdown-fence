@@ -177,8 +177,8 @@ left
 /---
 right
 /<<<`,
-    except:`<div class="fence-block" fence-type="short">
-<div class="fence-item"><p>/&gt;&gt;&gt;</p><p>right</p></div>
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>/&gt;&gt;&gt;</p><p>left</p><p>left</p></div>
 <div class="fence-item"><p>right</p>
 </div>
 </div>`,
