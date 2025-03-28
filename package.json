@@ -111,7 +111,7 @@
     "doc:deploy": "npm run build-css && tsc -p tsconfig.docsify.json && node build/docDeploy.js",
     "package": "vsce package",
     "watch": "tsc -watch -p ./",
-    "test": "vscode-test",
+    "test": "tsc -p ./ && vscode-test",
     "debug": "ts-node ./src/test/debug.ts",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
