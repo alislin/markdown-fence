@@ -8,9 +8,14 @@ The vscode extension "Markdown Fence" supports multi-column syntax
 ![](https://alislin.github.io/markdown-fence/assets/img/README_20250320-092003.png)
 
 ## 功能 Features
+下面三种语法是等效的。根据需要选用其中一种即可。  
+The following three syntax are equivalent. Choose one of the options according to your needs.
 
 <!-- fence:start -->
 **标准语法 Standard syntax**
+
+> 在不支持的解析器会解析为注释，渲染输出时隐藏  
+> Unsupported parsers resolve as annotations and are hidden when the output is rendered
 
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
@@ -21,6 +26,9 @@ Use markers to split into multi-column styles
 <!-- fence -->
 **快速语法 Short syntax**
 
+> 在不支持的解析器会解析为注释，渲染输出时隐藏  
+> Unsupported parsers resolve as annotations and are hidden when the output is rendered
+
 使用下面标记进行分隔  
 Use markers to split into multi-column styles
 - `<!-- >>> -->`
@@ -30,8 +38,8 @@ Use markers to split into multi-column styles
 <!-- fence -->
 **简写语法 Short syntax**
 
-> 如果 markdown 解析器不支持该语法，分栏文本将渲染为可见字符，在视觉上起分栏作用。  
-> If the markdown parser doesn't support this syntax, the columned text will be rendered as visible characters, which will visually act as a column.
+> 不支持的解析器会解析为普通文本原样显示，可以在后面追加任意数量的相同符号，起到分隔线的效果  
+> Unsupported parsers will parse the plain text as is, and any number of identical symbols can be appended to the end to play the role of a divider
 
 使用下面标记进行分隔，后续字符三个以上至任意数量都可以  
 Use the following tags to separate, and any number of subsequent characters from three or more can be used.
@@ -99,6 +107,18 @@ after render:
 </div>
 ```
 <!-- <<< -->
+
+## 配置参数 Configuration Parameters
+
+| Name            | Description                                                                                     | Default | Example                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| `header`        | Header to be added to the exported HTML/PDF<br>keywords:`{title}`,`{pageNumber}`,`{totalPages}` |         | `<div style="color:#666666;width:100%;">{title}</div>`                     |
+| `footer`        | Footer to be added to the exported HTML/PDF<br>keywords:`{title}`,`{pageNumber}`,`{totalPages}` |         | `<div></div><div style="color:#666666;">{pageNumber} / {totalPages}</div>` |
+| `size`          | Page size of the exported PDF                                                                   | `A4`    | `A3`, `Letter`, `Legal`                                                    |
+| `margin.top`    | Top margin of the exported PDF                                                                  | `20mm`  |                                                                            |
+| `margin.right`  | Right margin of the exported PDF                                                                | `5mm`   |                                                                            |
+| `margin.bottom` | Bottom margin of the exported PDF                                                               | `10mm`  |                                                                            |
+| `margin.left`   | Left margin of the exported PDF                                                                 | `5mm`   |                                                                            |
 
 ## 样式 style
 可以根据自己的需要编写样式覆盖  

@@ -2,7 +2,7 @@
     "command.exportToHTML": "Markdown Fence: 导出为 HTML",
     "command.exportToPDF": "Markdown Fence: 导出为 PDF",
     "command.insertFence": "插入 Fence 块",
-    "config.export.header": "导出 PDF 头部 (html)",
+    "config.export.header": "导出 PDF 头部 (html). 关键词: {title}, {pageNumber}, {totalPages}",
     "config.export.footer": "导出 PDF 尾部 (html). 关键词: {title}, {pageNumber}, {totalPages}",
     "config.export.size": "导出 PDF 纸张大小",
     "config.export.margin.top": "导出 PDF 边距顶部 (默认: 20mm)",

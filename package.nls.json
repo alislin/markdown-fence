@@ -2,7 +2,7 @@
     "command.exportToHTML": "Markdown Fence: Export to HTML",
     "command.exportToPDF": "Markdown Fence: Export to PDF",
     "command.insertFence": "Insert Fence Block",
-    "config.export.header": "Export PDF header (html)",
+    "config.export.header": "Export PDF header (html). keywords:{title},{pageNumber},{totalPages}",
     "config.export.footer": "Export PDF footer (html). keywords:{title},{pageNumber},{totalPages}",
     "config.export.size": "Export PDF paper size",
     "config.export.margin.top": "Export PDF margins top (default: 20mm)",
