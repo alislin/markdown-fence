@@ -24,7 +24,7 @@ readline.question('请输入内容，以 /end 结束：', (input: string) => {
             if (input.trim() === '/end') {
                 readline.close();
                 // console.log('输入内容：', inputContent);
-                const result = md.use(fencePlugin).render(inputContent);
+                const result = md.use(fencePlugin).render(inputContent.substring(0, inputContent.length - 4));
                 console.log();
                 console.log();
                 console.log("====================== 渲染结果 ==========================");
