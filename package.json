@@ -114,7 +114,7 @@
     "test": "vscode-test",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "tnode": "node --force-node-api-uncaught-exceptions-policy=true",
+    "test-data": "ts-node ./src/test/make-testdata.ts",
     "build-css": "sass css/fence.scss css/fence.css"
   },
   "devDependencies": {

@@ -1,3 +1,7 @@
+import { datas_main } from "./data-main";
+import { datas_short } from "./data-short";
+import { datas_standard } from "./data-standard";
+
 export interface TestCase {
     title: string;
     input: string;
@@ -6,8 +10,9 @@ export interface TestCase {
 
 export function generateTestData(): TestCase[] {
     const testData: TestCase[] = [
-        // Standard syntax
-        // Valid cases
+        ...datas_standard,
+        ...datas_short,
+        ...datas_main,
         {
             title: "标准渲染 [standard]",
             input: `<!-- fence:start -->

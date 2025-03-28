@@ -9,3 +9,4 @@ node_modules
 *.css.map
 public
 *.test.js*
+/src/test/temp

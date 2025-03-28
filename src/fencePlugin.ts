@@ -27,7 +27,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     const content = state.src;
     code_block = scanCodePostItems(content);
     isScanCodeBlock = true;
-    console.log(code_block);
+    // console.log(code_block);
 
     return false;
   });
