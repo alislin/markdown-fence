@@ -28,7 +28,7 @@ function start(dfile: string, opt: { name: string, start: string, end: string, s
     }
   }
   const rows = makeContent(render_list);
-  const content = `const datas_${opt.name}=[${rows}]`;
+  const content = `const datas_${opt.name}=[${rows}];`;
 
   // 将 rows 写入文件dfile
   saveDate(path.resolve(__dirname, "./temp", dfile), content);
