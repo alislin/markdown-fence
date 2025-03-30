@@ -473,4 +473,379 @@ right
 </div><p>尾巴</p>
 `,
 }
+,
+{
+    title:`[main] - 嵌套1`,
+    input:`/>>>
+<!-- >>> -->
+left
+/---
+right
+<!-- <<< -->
+/<<<`,
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>&lt;!-- &gt;&gt;&gt; --&gt;
+left</p>
+</div>
+<div class="fence-item"><p>right
+&lt;!-- &lt;&lt;&lt; --&gt;</p>
+</div>
+</div>`,
+}
+,
+{
+    title:`[main] - 嵌套2`,
+    input:`/>>>
+/>>>
+left
+/---
+right
+/<<<
+/<<<`,
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>/&gt;&gt;&gt;
+left</p>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><p>/&lt;&lt;&lt;</p>
+`,
+}
+,
+{
+    title:`[main] - 嵌套3`,
+    input:`/>>>
+/>>>
+left
+/---
+right
+/<<<
+/<<<`,
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>/&gt;&gt;&gt;
+left</p>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><p>/&lt;&lt;&lt;</p>
+`,
+}
+,
+{
+    title:`[main] - 嵌套6`,
+    input:`/>>>
+<!-- fence:start -->
+left
+/---
+right
+<!-- fence:start -->
+in-left
+<!-- fence -->
+in-right
+<!-- fence -->
+in-third
+<!-- fence:end -->
+right-tail
+/<<<`,
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>&lt;!-- fence:start --&gt;
+left</p>
+</div>
+<div class="fence-item"><p>right
+&lt;!-- fence:start --&gt;
+in-left
+&lt;!-- fence --&gt;
+in-right
+&lt;!-- fence --&gt;
+in-third
+&lt;!-- fence:end --&gt;
+right-tail</p>
+</div>
+</div>`,
+}
+,
+{
+    title:`[main] - 嵌套7`,
+    input:`/>>>
+/>>>
+left
+/---
+right
+/>>>
+in-left
+/---
+in-right
+/---
+in-third
+/<<<
+right-tail
+/<<<`,
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>/&gt;&gt;&gt;
+left</p>
+</div>
+<div class="fence-item"><p>right
+/&gt;&gt;&gt;
+in-left</p>
+</div>
+<div class="fence-item"><p>in-right</p>
+</div>
+<div class="fence-item"><p>in-third</p>
+</div>
+</div><p>right-tail
+/&lt;&lt;&lt;</p>
+`,
+}
+,
+{
+    title:`[main] - 嵌套8`,
+    input:`/>>>
+<!-- >>> -->
+left
+/---
+right
+<!-- >>> -->
+in-left
+<!-- --- -->
+in-right
+<!-- --- -->
+in-third
+<!-- <<< -->
+right-tail
+/<<<`,
+    except:`<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>&lt;!-- &gt;&gt;&gt; --&gt;
+left</p>
+</div>
+<div class="fence-item"><p>right
+&lt;!-- &gt;&gt;&gt; --&gt;
+in-left
+&lt;!-- --- --&gt;
+in-right
+&lt;!-- --- --&gt;
+in-third
+&lt;!-- &lt;&lt;&lt; --&gt;
+right-tail</p>
+</div>
+</div>`,
+}
+,
+{
+    title:`[main] - 混合多标记1`,
+    input:`开头的数据
+
+/>>>
+left
+/---
+right
+/<<<
+
+/>>>
+left
+/---
+
+left
+
+\`\`\`markdown
+<!-- >>> -->
+left1
+<!-- --- -->
+right2
+<!-- <<< -->
+\`\`\`
+
+/---
+right
+/<<<
+
+/>>>
+left
+/---
+right
+/<<<
+
+尾巴`,
+    except:`<p>开头的数据</p>
+<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>left</p>
+<pre><code class="language-markdown">&lt;!-- &gt;&gt;&gt; --&gt;
+left1
+&lt;!-- --- --&gt;
+right2
+&lt;!-- &lt;&lt;&lt; --&gt;
+</code></pre>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><p>尾巴</p>
+`,
+}
+,
+{
+    title:`[main] - 混合多标记2`,
+    input:`开头的数据
+
+/>>>
+left
+/---
+right
+/<<<
+
+/>>>
+left
+/---
+
+left
+
+\`\`\`markdown
+<!-- >>> -->
+left1
+<!-- --- -->
+right2
+<!-- <<< -->
+\`\`\`
+
+/---
+right
+/<<<
+
+/>>>
+left
+
+\`\`\`markdown
+/>>>
+left11
+/---
+right22
+/<<<
+\`\`\`
+
+/---
+right
+/<<<
+
+尾巴`,
+    except:`<p>开头的数据</p>
+<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>left</p>
+<pre><code class="language-markdown">&lt;!-- &gt;&gt;&gt; --&gt;
+left1
+&lt;!-- --- --&gt;
+right2
+&lt;!-- &lt;&lt;&lt; --&gt;
+</code></pre>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+<pre><code class="language-markdown">/&gt;&gt;&gt;
+left11
+/---
+right22
+/&lt;&lt;&lt;
+</code></pre>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><p>尾巴</p>
+`,
+}
+,
+{
+    title:`[main] - 混合多标记3`,
+    input:`开头的数据
+
+/>>>
+left
+/---
+right
+/<<<
+
+/>>>
+left
+/---
+
+left
+
+\`\`\`markdown
+/>>>
+left1
+/---
+right2
+/<<<
+\`\`\`
+
+/---
+right
+/<<<
+
+/>>>
+left
+
+\`\`\`markdown
+/>>>
+left11
+/---
+right22
+/<<<
+\`\`\`
+
+/---
+right
+/<<<
+
+尾巴`,
+    except:`<p>开头的数据</p>
+<div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+</div>
+<div class="fence-item"><p>left</p>
+<pre><code class="language-markdown">/&gt;&gt;&gt;
+left1
+/---
+right2
+/&lt;&lt;&lt;
+</code></pre>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><div class="fence-block" fence-type="main">
+<div class="fence-item"><p>left</p>
+<pre><code class="language-markdown">/&gt;&gt;&gt;
+left11
+/---
+right22
+/&lt;&lt;&lt;
+</code></pre>
+</div>
+<div class="fence-item"><p>right</p>
+</div>
+</div><p>尾巴</p>
+`,
+}
 ];
