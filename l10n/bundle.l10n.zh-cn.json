@@ -1,6 +1,9 @@
 {
     "There are unclosed fence blocks (start markers: {0},endmarkers:{1}).": "存在未闭合的 fence 块 (开始标记: {0}, 结束标记: {1})",
     "Excess end markers": "多余的结束标记",
+    "Create a fence block container": "插入完整的围栏代码块结构",
+    "Insert a single fence split marker": "插入单个围栅拆分标记",
+    "Insert an end-of-fence marker": "插入围栏结束标记",
     "Successfully exported PDF file to {0}": "成功导出 PDF 文件到 {0}",
     "Failed to export PDF file: {0}": "导出 PDF 文件失败: {0}",
     "Successfully exported HTML file to {0}": "成功导出 HTML 文件到 {0}",

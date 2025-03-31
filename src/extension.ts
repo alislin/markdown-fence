@@ -2,7 +2,7 @@
  * @Author: Lin Ya
  * @Date: 2025-02-20 17:17:55
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-26 16:18:56
+ * @LastEditTime: 2025-03-31 11:44:58
  * @Description: markdown fence
  */
 // The module 'vscode' contains the VS Code extensibility API
@@ -13,6 +13,7 @@ import fencePlugin from './fencePlugin';
 import { FencePluginOptions } from './fencePlugin';
 import { exportDocument } from './exportDocument';
 import { insertFence } from './insertFence';
+import { fenceSnippetRegist } from './fenceSnippet';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -23,6 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			provideCompletionItems(document, position) {
 				console.log(position);
+
 
 				const fenceStartSnippet = new vscode.CompletionItem('fence:start');
 				fenceStartSnippet.insertText = new vscode.SnippetString(
@@ -40,7 +42,9 @@ export function activate(context: vscode.ExtensionContext) {
 		// ':' // 触发字符（根据需要调整）
 	);
 
-	context.subscriptions.push(snippetProvider);
+	// context.subscriptions.push(snippetProvider);
+
+	fenceSnippetRegist(context);
 
 	// return
 	// 注册导出命令
