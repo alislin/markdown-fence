@@ -2,7 +2,7 @@
  * @Author: Lin Ya
  * @Date: 2025-03-19 21:38:00
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-25 17:53:04
+ * @LastEditTime: 2025-03-31 09:51:15
  * @Description: fence 实现
  */
 import MarkdownIt from 'markdown-it';
@@ -22,7 +22,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
   md.block.ruler.before('fence', 'code_block_begin', (state, startLine, endLine, silent) => {
     if (isScanCodeBlock) {
-      return false;
+      // return false;
     }
     const content = state.src;
     code_block = scanCodePostItems(content);
