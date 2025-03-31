@@ -5,7 +5,13 @@ All notable changes to the "markdown-fence" extension will be documented in this
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+
 ### Fixed
+
+## [1.0.9] - 2025-03-31
+
+### Fixed
+- 修正代码扫描逻辑，修复包含代码块时渲染结果。
 
 ## [1.0.8] - 2025-03-27
 
