@@ -2,7 +2,7 @@
  * @Author: Lin Ya
  * @Date: 2025-02-20 17:17:55
  * @LastEditors: Lin Ya
- * @LastEditTime: 2025-03-31 11:44:58
+ * @LastEditTime: 2025-03-31 22:34:01
  * @Description: markdown fence
  */
 // The module 'vscode' contains the VS Code extensibility API
@@ -19,32 +19,7 @@ import { fenceSnippetRegist } from './fenceSnippet';
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	// 注册代码片段
-	const snippetProvider = vscode.languages.registerCompletionItemProvider(
-		'markdown',
-		{
-			provideCompletionItems(document, position) {
-				console.log(position);
-
-
-				const fenceStartSnippet = new vscode.CompletionItem('fence:start');
-				fenceStartSnippet.insertText = new vscode.SnippetString(
-					'<!-- fence:start -->\n$1\n<!-- fence -->\n$2\n<!-- fence:end -->'
-				);
-				fenceStartSnippet.documentation = vscode.l10n.t('snippet.fenceStart', 'Create a fence block container');
-
-				const fenceSplitSnippet = new vscode.CompletionItem('fence');
-				fenceSplitSnippet.insertText = new vscode.SnippetString('<!-- fence -->');
-				fenceSplitSnippet.documentation = vscode.l10n.t('snippet.fence', 'Add a split point in fence block');
-
-				return [fenceStartSnippet, fenceSplitSnippet];
-			}
-		},
-		// ':' // 触发字符（根据需要调整）
-	);
-
-	// context.subscriptions.push(snippetProvider);
-
-	fenceSnippetRegist(context);
+	fenceSnippetRegist();
 
 	// return
 	// 注册导出命令
