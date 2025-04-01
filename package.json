@@ -45,12 +45,6 @@
         }
       ]
     },
-    "snippets": [
-      {
-        "language": "markdown",
-        "path": "./snippets/snippets.json"
-      }
-    ],
     "markdown.previewStyles": [
       "./css/fence.css"
     ],

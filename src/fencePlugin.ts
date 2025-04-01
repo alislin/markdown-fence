@@ -6,7 +6,7 @@
  * @Description: fence 实现
  */
 import MarkdownIt from 'markdown-it';
-import { FenceMarks, MarkDefine } from './fenceMark';
+import { FenceMarks, FenceMarkDefinition } from './fenceMark';
 import { stat } from 'fs';
 
 interface FencePluginOptions {
@@ -40,7 +40,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
     // 检测起始标记
     let currentLine = startLine;
-    let fenceType: MarkDefine | null = null;
+    let fenceType: FenceMarkDefinition | null = null;
 
     for (const mark of FenceMarks) {
       if (testTagMatch(content, mark.START, code_block)) {
@@ -101,7 +101,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
     const blockClass = (tokens[idx].attrGet('class') || '').split(' ').map(x => x.trim());
     const types = (tokens[idx].attrGet('fence-type') || '').split(' ').map(x => x.trim());
 
-    let fenceType: MarkDefine | undefined;
+    let fenceType: FenceMarkDefinition | undefined;
     fenceType = FenceMarks.find(x => types.includes(x.type)) ?? FenceMarks[0];
 
     const itemClass = fenceType?.itemClass || '';
