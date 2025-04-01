@@ -48,6 +48,25 @@
     "markdown.previewStyles": [
       "./css/fence.css"
     ],
+    "grammars": [
+      {
+        "scopeName": "markdown.fence.injection",
+        "path": "./syntaxes/markdown-fence.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.markdown": "markdown"
+        }
+      }
+    ],
+    "themes1": [
+      {
+        "label": "Markdown Fence Theme",
+        "uiTheme": "vs",
+        "path": "./themes/markdown-fence-color-theme.json"
+      }
+    ],
     "configuration": [
       {
         "title": "Markdown Fence",
