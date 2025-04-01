@@ -108,6 +108,9 @@ after render:
 ```
 <!-- <<< -->
 
+## 快捷键 Shortcut
+在行内第一个字符键入: `\` 。
+
 ## 配置参数 Configuration Parameters
 
 | Name            | Description                                                                                     | Default | Example                                                                    |
