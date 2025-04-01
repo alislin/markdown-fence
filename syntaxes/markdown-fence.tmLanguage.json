@@ -4,7 +4,7 @@
     "patterns": [
       {
         "name": "comment.block.markdown.fence.start",
-        "begin": "(<!-- *?fence:start *?-->)|(<!-- *?>>>+ *?-->)|(/>{3,})",
+        "begin": "(^<!-- *?fence:start *?-->)|(^<!-- *?>>>+ *?-->)|(^/>{3,})",
         "end": "$",
         "contentName": "meta.fence.start.markdown",
         "patterns": [
@@ -15,7 +15,7 @@
       },
       {
         "name": "comment.block.markdown.fence.split",
-        "begin": "(<!-- *?fence *?-->)|(<!-- *?---+ *?-->)|(/---+)",
+        "begin": "(^<!-- *?fence *?-->)|(^<!-- *?---+ *?-->)|(^/---+)",
         "end": "$",
         "contentName": "meta.fence.split.markdown",
         "patterns": [
@@ -26,7 +26,7 @@
       },
       {
         "name": "comment.block.markdown.fence.end",
-        "begin": "(<!-- *?fence:end *?-->)|(<!-- *?<<<+ *?-->)|(/<{3,})",
+        "begin": "(^<!-- *?fence:end *?-->)|(^<!-- *?<<<+ *?-->)|(^/<{3,})",
         "end": "$",
         "contentName": "meta.fence.end.markdown",
         "patterns": [

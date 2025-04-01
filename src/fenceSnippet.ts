@@ -198,7 +198,7 @@ function initFenceSnippetItems() {
         {
             style: 'short',
             position: 'start',
-            label: ">>> (fence:start)",
+            label: ">>> short(fence:start)",
             insertText: "<!-- >>> -->\n$0\n<!-- <<< -->",
             description: "Create a fence block container",
             matcher: fenceMarksByStyleAndPosition.short.start.markString,
@@ -206,7 +206,7 @@ function initFenceSnippetItems() {
         {
             style: 'short',
             position: 'split',
-            label: "--- (fence)",
+            label: "--- short(fence)",
             insertText: "<!-- --- -->",
             description: "Insert a single fence split marker",
             matcher: fenceMarksByStyleAndPosition.short.split.markString,
@@ -214,7 +214,7 @@ function initFenceSnippetItems() {
         {
             style: 'short',
             position: 'end',
-            label: "<<< (fence:end)",
+            label: "<<< short(fence:end)",
             insertText: "<!-- <<< -->",
             description: "Insert an end-of-fence marker",
             matcher: fenceMarksByStyleAndPosition.short.end.markString,
@@ -224,7 +224,7 @@ function initFenceSnippetItems() {
         {
             style: 'main',
             position: 'start',
-            label: "/>>> (fence:start)",
+            label: "/>>> main(fence:start)",
             insertText: "/>>>\n$0\n/<<<",
             description: "Create a fence block container",
             matcher: fenceMarksByStyleAndPosition.main.start.markString,
@@ -232,7 +232,7 @@ function initFenceSnippetItems() {
         {
             style: 'main',
             position: 'split',
-            label: "/--- (fence)",
+            label: "/--- main(fence)",
             insertText: "/---",
             description: "Insert a single fence split marker",
             matcher: fenceMarksByStyleAndPosition.main.split.markString,
@@ -240,7 +240,7 @@ function initFenceSnippetItems() {
         {
             style: 'main',
             position: 'end',
-            label: "/<<< (fence:end)",
+            label: "/<<< main(fence:end)",
             insertText: "/<<<",
             description: "Insert an end-of-fence marker",
             matcher: fenceMarksByStyleAndPosition.main.end.markString,
