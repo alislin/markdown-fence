@@ -8,7 +8,7 @@
     "url": "https://github.com/alislin/markdown-fence.git"
   },
   "icon": "media/fence-128.png",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -45,14 +45,27 @@
         }
       ]
     },
-    "snippets": [
-      {
-        "language": "markdown",
-        "path": "./snippets/snippets.json"
-      }
-    ],
     "markdown.previewStyles": [
       "./css/fence.css"
+    ],
+    "grammars": [
+      {
+        "scopeName": "markdown.fence.injection",
+        "path": "./syntaxes/markdown-fence.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.markdown": "markdown"
+        }
+      }
+    ],
+    "themes1": [
+      {
+        "label": "Markdown Fence Theme",
+        "uiTheme": "vs",
+        "path": "./themes/markdown-fence-color-theme.json"
+      }
     ],
     "configuration": [
       {

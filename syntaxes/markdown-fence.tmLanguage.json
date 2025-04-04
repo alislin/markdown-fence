@@ -1,0 +1,39 @@
+{
+    "scopeName": "markdown.fence.injection",
+    "injectionSelector": "L:text.html.markdown -markup.fenced_code.block.markdown",
+    "patterns": [
+      {
+        "name": "comment.block.markdown.fence.start",
+        "begin": "(^<!-- *?fence:start *?-->)|(^<!-- *?>>>+ *?-->)|(^/>{3,})",
+        "end": "$",
+        "contentName": "meta.fence.start.markdown",
+        "patterns": [
+          {
+            "include": "text.html.markdown"
+          }
+        ]
+      },
+      {
+        "name": "comment.block.markdown.fence.split",
+        "begin": "(^<!-- *?fence *?-->)|(^<!-- *?---+ *?-->)|(^/---+)",
+        "end": "$",
+        "contentName": "meta.fence.split.markdown",
+        "patterns": [
+          {
+            "include": "text.html.markdown"
+          }
+        ]
+      },
+      {
+        "name": "comment.block.markdown.fence.end",
+        "begin": "(^<!-- *?fence:end *?-->)|(^<!-- *?<<<+ *?-->)|(^/<{3,})",
+        "end": "$",
+        "contentName": "meta.fence.end.markdown",
+        "patterns": [
+          {
+            "include": "text.html.markdown"
+          }
+        ]
+      }
+    ]
+  }
