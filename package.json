@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/alislin/markdown-fence.git"
   },
-  "icon": "media/markdown-fence-128.png",
+  "icon": "media/fence-128.png",
   "version": "1.0.9",
   "engines": {
     "vscode": "^1.97.0"
