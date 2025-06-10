@@ -52,7 +52,7 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const browser = await puppeteer.launch();
 			const page = await browser.newPage();
 			await page.setContent(html);
-			
+
 			// const log = (x: any) => console.log(x);
 			// await handleMermaidRendering(page, log);
 
@@ -189,12 +189,16 @@ async function imageToBase64(imagePath: string, filePath: string): Promise<strin
 		const ext = path.extname(imagePath).toLowerCase();
 
 		if (ext === '.svg') {
-			const decoder = new TextDecoder('utf-8');
-			return decoder.decode(data);
-			// return data.toString('utf8'); // 直接读取 SVG 文件内容
+			// 使用base64编码
+			const base64 = Buffer.from(data).toString("base64");
+			const mimeType = 'image/svg+xml';
+			return `data:${mimeType};base64,${base64}`;
+
+			// 使用svg源代码
+			// const decoder = new TextDecoder('utf-8');
+			// return decoder.decode(data);
 		} else {
 			const base64 = Buffer.from(data).toString("base64");
-			// const base64 = data.toString('base64');
 			const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
 			return `data:${mimeType};base64,${base64}`;
 		}
