@@ -263,7 +263,7 @@ async function markdownRender() {
 				const ext = path.extname(decodeURIComponent(src)).toLowerCase();
 				let replacement = '';
 
-				if (ext === '.svg') {
+				if (false && ext === '.svg') {
 					// 直接读取 SVG 文件内容
 					replacement = await imageToBase64(src, filePath);
 					return { match: match[0], replacement };
