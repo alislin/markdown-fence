@@ -25,3 +25,6 @@ out/**
 **/*.map
 **/tsconfig.docsify.json
 **/*.test.*
+media/fence-256.png
+media/fence-512.png
+media/fence-1024.png

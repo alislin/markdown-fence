@@ -1,6 +1,6 @@
 # Markdown Fence
 
-![](/media/markdown-fence-128.png)
+![](/media/fence-256.png)
 
 vscode 扩展 Markdown Fence 支持多列语法  
 The vscode extension "Markdown Fence" supports multi-column syntax
