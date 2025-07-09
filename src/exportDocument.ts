@@ -49,12 +49,17 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const pdfPath = path.join(path.dirname(filePath), `${fileName}.pdf`);
 			// 使用 Puppeteer 将 HTML 转换为 PDF
 			const puppeteer = require('puppeteer');
-			const browser = await puppeteer.launch();
+			const browser = await puppeteer.launch({
+				headless: "new", // 使用新的 Headless 模式
+				args: ['--no-sandbox', '--disable-setuid-sandbox'] // 解决 Linux 下的权限问题
+			});
 			const page = await browser.newPage();
 			await page.setContent(html);
 
-			// const log = (x: any) => console.log(x);
-			// await handleMermaidRendering(page, log);
+			const log = (x: any) => console.log(x);
+			await handleMermaidRendering(page, log);
+			// 添加额外的等待时间确保所有内容加载完成
+			await page.waitForNetworkIdle({ idleTime: 500 });
 
 			const paperSize = exportData?.size;
 			const margin = exportData?.margin;
@@ -110,44 +115,26 @@ export async function exportDocument(format: 'html' | 'pdf') {
 
 async function handleMermaidRendering(page: Page, log: any): Promise<void> {
 	try {
-		// 显式执行 Mermaid 渲染
+		// 等待 Mermaid 脚本加载完成
+		await page.waitForFunction(() => typeof window.mermaid !== 'undefined', {
+			timeout: 10000
+		});
+
+		// 执行 Mermaid 渲染
 		await page.evaluate(async () => {
-			// log("1+++");
-			// const document = window.document;
-
 			try {
-				// 等待 Mermaid 模块加载完成
-				// @ts-ignore - 自定义元素类型检测
-				await customElements.whenDefined('mermaid-js');
-
-				// 类型安全的渲染检查
-				const hasRendered = await new Promise<boolean>((resolve) => {
-					const checkRender = () => {
-						const elements = document.querySelectorAll('.language-mermaid');
-						const allRendered = elements.length === 0 ||
-							Array.from(elements).every(el => el.querySelector('svg'));
-
-						if (allRendered) {
-							resolve(true);
-						} else {
-							setTimeout(checkRender, 100);
-						}
-					};
-					checkRender();
-				});
-
-				if (!hasRendered) {
-					// 手动触发渲染
-					// @ts-ignore - Mermaid 类型声明
-					await window.mermaid?.run({
+				// 确保 Mermaid 已初始化
+				if (window.mermaid) {
+					await window.mermaid.run({
 						querySelector: '.language-mermaid',
 						suppressErrors: true
 					});
 				}
 			} catch (e) {
-				console.error(vscode.l10n.t('Mermaid rendering error:'), e);
+				console.error('Mermaid rendering error:', e);
 			}
 		});
+
 
 		// 双重验证渲染结果
 		await page.waitForFunction(() => {
@@ -302,13 +289,14 @@ async function markdownRender() {
 <script>hljs.highlightAll();</script>
 	<script type="module">
 	import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-	  mermaid.initialize({
+	window.mermaid = mermaid;
+	mermaid.initialize({
 	    startOnLoad: false,
 	    theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
 	        ? 'dark'
 	        : 'default'
 	  });
-	  await mermaid.run({
+	await mermaid.run({
   querySelector: '.language-mermaid',
 });
 	</script>
