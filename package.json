@@ -8,7 +8,7 @@
     "url": "https://github.com/alislin/markdown-fence.git"
   },
   "icon": "media/fence-128.png",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -123,6 +123,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "node esbuild.config.js",
     "veradd": "node build/verAdd.js",
+    "tag": "node versionTag.js",
     "doc:deploy": "npm run build-css && tsc -p tsconfig.docsify.json && node build/docDeploy.js",
     "package": "vsce package",
     "watch": "tsc -watch -p ./",

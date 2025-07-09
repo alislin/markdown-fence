@@ -238,7 +238,10 @@ async function markdownRender() {
 		const styles = await fs.promises.readFile(cssPath, 'utf8');
 
 		// 渲染 Markdown 为 HTML
-		const htmlContent = md.render(content);
+		let htmlContent = md.render(content);
+
+		// Remove pre tag styles for mermaid code blocks
+		htmlContent = htmlContent.replace(/<pre><code class="language-mermaid">/g, '<pre class="no-style"><code class="language-mermaid">');
 
 		// 匹配所有 img 标签
 		const imgTags = [...htmlContent.matchAll(/<img src="(.*?)"(.*?>)/g)];

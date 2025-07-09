@@ -44,6 +44,13 @@
     }
 }
 
+.no-style {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background-color: transparent !important;
+}
+
 @page {
     margin: 10mm;
     size: A4;
