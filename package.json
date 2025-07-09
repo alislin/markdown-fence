@@ -123,7 +123,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "node esbuild.config.js",
     "veradd": "node build/verAdd.js",
-    "tag": "node versionTag.js",
+    "tag": "node versionTag.mjs",
     "doc:deploy": "npm run build-css && tsc -p tsconfig.docsify.json && node build/docDeploy.js",
     "package": "vsce package",
     "watch": "tsc -watch -p ./",
