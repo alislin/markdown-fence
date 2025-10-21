@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import fencePlugin from './fencePlugin';
 import puppeteer, { Browser, Page, PDFOptions } from 'puppeteer';
+import yamlFrontMatterPlugin from './yamlPlugin';
 
 // 类型增强声明
 declare global {
@@ -27,10 +28,14 @@ interface ExportOptions {
 	},
 	header?: string;
 	footer?: string;
+	html?: boolean;
 }
 
 export async function exportDocument(format: 'html' | 'pdf') {
-	const render = await markdownRender();
+	const config = vscode.workspace.getConfiguration('markdown-fence');
+	const exportData = config.get<ExportOptions>('export');
+
+	const render = await markdownRender({ html: exportData?.html });
 	if (!render || !render.html) {
 		return;
 	}
@@ -43,8 +48,6 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			const title = render.fileName;
 			const keyList = { title, pageNumber, totalPages };
 
-			const config = vscode.workspace.getConfiguration('markdown-fence');
-			const exportData = config.get<ExportOptions>('export');
 
 			const pdfPath = path.join(path.dirname(filePath), `${fileName}.pdf`);
 			// 使用 Puppeteer 将 HTML 转换为 PDF
@@ -210,7 +213,7 @@ async function loadImageFile(imagePath: string, filePath: string) {
 	}
 }
 
-async function markdownRender() {
+async function markdownRender(options?: MarkdownIt.Options) {
 	// 获取当前活动的文本编辑器
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
@@ -231,7 +234,7 @@ async function markdownRender() {
 		const content = await fs.promises.readFile(filePath, 'utf8');
 
 		// 创建带插件的 MarkdownIt 实例
-		const md = new MarkdownIt().use(fencePlugin);
+		const md = new MarkdownIt(options ?? {}).use(yamlFrontMatterPlugin, { remove: true }).use(fencePlugin);
 
 		// 获取样式内容
 		const cssPath = path.join(__dirname, '../css/fence.css');

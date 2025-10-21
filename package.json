@@ -8,7 +8,7 @@
     "url": "https://github.com/alislin/markdown-fence.git"
   },
   "icon": "media/fence-128.png",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -82,6 +82,12 @@
             "description": "%config.export.footer%",
             "editPresentation": "multilineText",
             "order": 20
+          },
+          "markdown-fence.export.html": {
+            "type": "boolean",
+            "description": "%config.export.html%",
+            "default": false,
+            "order": 30
           },
           "markdown-fence.export.size": {
             "type": "string",
