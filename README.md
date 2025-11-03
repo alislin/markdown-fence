@@ -136,6 +136,10 @@ You can write style overrides according to your needs
 }
 ```
 
+## 导出扩展语法
+使用 `<!-- pagebreak -->` 标记来强制分页，在打印或pdf时生效。  
+Use the `<!-- pagebreak -->` marker to force a page break, which is effective when printing or pdf.
+
 ## docsify plugin 插件支持
 Markdown Fence 也提供了docsify支持。按下面添加插件即可使用  
 Markdown Fence also provides docsify support. Click below to add a plug-in to use
