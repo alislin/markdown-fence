@@ -140,6 +140,15 @@ You can write style overrides according to your needs
 使用 `<!-- pagebreak -->` 标记来强制分页，在打印或pdf时生效。  
 Use the `<!-- pagebreak -->` marker to force a page break, which is effective when printing or pdf.
 
+可以使用yaml设置强制分页章节级别，默认不启用强制章节分页  
+You can use yaml to set the force page break section level, and the force page break is not enabled by default
+
+```yaml
+---
+pageLevel: [1,2]
+---
+```
+
 ## docsify plugin 插件支持
 Markdown Fence 也提供了docsify支持。按下面添加插件即可使用  
 Markdown Fence also provides docsify support. Click below to add a plug-in to use
