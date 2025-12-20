@@ -1,110 +1,191 @@
 /**
  * 简单的YAML解析器（增强版）
- * 支持中文、多行列表、复杂结构
+ * 支持中文、多行列表、嵌套对象结构
  */
 export class SimpleYAMLParser {
     /**
      * 解析YAML字符串为对象
      */
     static parse(yamlString: string): Record<string, any> {
-        const result: Record<string, any> = {};
         const lines = yamlString.split('\n');
+        let index = 0;
 
-        let currentKey: string | null = null;
-        let currentValue: any = null;
-        let inMultiLineList = false;
-        let listItems: string[] = [];
+        // 使用栈来跟踪嵌套层级
+        const stack: Array<{ key: string; obj: any; indent: number }> = [];
+        let root: Record<string, any> = {};
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
+        while (index < lines.length) {
+            const line = lines[index];
+            const indent = this.getIndent(line);
             const trimmedLine = line.trim();
 
-            // 跳过文档分隔符
-            if (trimmedLine === '---') continue;
-
-            // 跳过空行和注释
-            if (!trimmedLine || trimmedLine.startsWith('#')) {
-                // 如果是多行值中的空行，保留它
-                if (currentKey !== null && !inMultiLineList) {
-                    if (typeof currentValue === 'string') {
-                        currentValue += '\n';
-                    }
-                }
+            // 跳过文档分隔符、空行和注释
+            if (trimmedLine === '---' || !trimmedLine || trimmedLine.startsWith('#')) {
+                index++;
                 continue;
             }
 
-            // 处理列表项
-            if (trimmedLine.startsWith('- ')) {
-                if (!inMultiLineList && currentKey) {
-                    // 开始新的列表
-                    inMultiLineList = true;
-                    listItems = [];
-                }
-                if (inMultiLineList) {
-                    listItems.push(trimmedLine.substring(2).trim());
-                    continue;
-                }
-            } else if (inMultiLineList) {
-                // 列表结束，提交当前列表
-                result[currentKey!] = listItems.map(item => this.parseValue(item));
-                currentKey = null;
-                inMultiLineList = false;
-                listItems = [];
-            }
-
-            // 提交之前的键值对（非列表情况）
-            if (currentKey !== null && !inMultiLineList) {
-                result[currentKey] = this.parseValue(currentValue);
-                currentKey = null;
-                currentValue = null;
-            }
-
-            // 解析键值对 - 支持中文和特殊字符
+            // 解析键值对
             const match = trimmedLine.match(/^([^:#\s][^:]*):\s*(.*)$/);
-
-            if (match && !inMultiLineList) {
+            if (match) {
                 const [, key, value] = match;
-                currentKey = key.trim();
+                const cleanKey = key.trim();
+                const cleanValue = value.trim();
 
-                if (value.trim()) {
-                    currentValue = value.trim();
-                } else {
-                    // 空值或可能是多行值的开始
-                    currentValue = '';
+                // 调整栈的深度
+                while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
+                    stack.pop();
                 }
-            } else if (!inMultiLineList && currentKey && typeof currentValue === 'string') {
-                // 处理多行字符串值（非列表）
-                currentValue += '\n' + trimmedLine;
+
+                // 创建当前对象
+                let targetObj: any;
+                if (stack.length === 0) {
+                    // 根级别
+                    targetObj = root;
+                } else {
+                    // 嵌套级别
+                    targetObj = stack[stack.length - 1].obj;
+                }
+
+                if (cleanValue === '') {
+                    // 空值，检查下一行是否是嵌套对象或列表
+                    const nextLine = index + 1 < lines.length ? lines[index + 1] : '';
+                    const nextTrimmed = nextLine.trim();
+                    const nextIndent = this.getIndent(nextLine);
+
+                    if (nextLine.trim() && nextIndent > indent) {
+                        if (nextTrimmed.startsWith('- ')) {
+                            // 下一行是列表项，创建列表
+                            const listItems: any[] = [];
+                            index++;
+                            while (index < lines.length) {
+                                const listLine = lines[index];
+                                const listIndent = this.getIndent(listLine);
+
+                                if (!listLine.trim()) {
+                                    index++;
+                                    continue;
+                                }
+
+                                if (listIndent <= indent) {
+                                    break;
+                                }
+
+                                const listTrimmed = listLine.trim();
+                                if (listTrimmed.startsWith('- ')) {
+                                    const listItemValue = listTrimmed.substring(2).trim();
+                                    listItems.push(this.parseValue(listItemValue));
+                                } else {
+                                    // 嵌套对象
+                                    const nestedMatch = listTrimmed.match(/^([^:#\s][^:]*):\s*(.*)$/);
+                                    if (nestedMatch) {
+                                        const [, nestedKey, nestedValue] = nestedMatch;
+                                        const nestedObj: Record<string, any> = {};
+                                        nestedObj[nestedKey.trim()] = this.parseValue(nestedValue.trim());
+                                        listItems.push(nestedObj);
+                                    }
+                                }
+
+                                index++;
+                            }
+                            targetObj[cleanKey] = listItems;
+                            continue;
+                        } else {
+                            // 下一行是嵌套内容，创建对象
+                            const newObj: Record<string, any> = {};
+                            targetObj[cleanKey] = newObj;
+                            stack.push({ key: cleanKey, obj: newObj, indent: indent });
+                        }
+                    } else {
+                        // 空字符串
+                        targetObj[cleanKey] = '';
+                    }
+                } else if (cleanValue.startsWith('|') || cleanValue.startsWith('>')) {
+                    // 多行字符串
+                    const isFolded = cleanValue.startsWith('>');
+                    const marker = cleanValue[0];
+                    let multiLineValue = cleanValue.substring(1).trim();
+
+                    index++;
+                    while (index < lines.length) {
+                        const nextLine = lines[index];
+                        const nextIndent = this.getIndent(nextLine);
+
+                        if (!nextLine.trim() || nextIndent <= indent) {
+                            break;
+                        }
+
+                        multiLineValue += '\n' + nextLine.substring(indent);
+                        index++;
+                    }
+
+                    targetObj[cleanKey] = multiLineValue;
+                    continue;
+                } else if (cleanValue.startsWith('- ')) {
+                    // 内联列表
+                    const listItems: any[] = [];
+                    const itemValue = cleanValue.substring(2).trim();
+                    if (itemValue) {
+                        listItems.push(this.parseValue(itemValue));
+                    }
+                    targetObj[cleanKey] = listItems;
+                } else {
+                    // 普通值
+                    targetObj[cleanKey] = this.parseValue(cleanValue);
+                }
             }
 
+            index++;
         }
 
-        // 处理最后未提交的数据
-        if (inMultiLineList && currentKey) {
-            result[currentKey] = listItems.map(item => this.parseValue(item));
-        } else if (currentKey !== null) {
-            result[currentKey] = this.parseValue(currentValue);
-        }
+        return root;
+    }
 
-        return result;
+    /**
+     * 计算行的缩进空格数
+     */
+    private static getIndent(line: string): number {
+        let count = 0;
+        for (let i = 0; i < line.length; i++) {
+            if (line[i] === ' ') {
+                count++;
+            } else {
+                break;
+            }
+        }
+        return count;
     }
 
     /**
      * 解析值 - 增强版，支持日期和更多类型
      */
     private static parseValue(value: string): any {
-        if (value === undefined || value === null) return null;
+        if (value === undefined || value === null) {
+            return null;
+        }
 
         const trimmed = value.toString().trim();
 
-        if (trimmed === '') return '';
-        if (trimmed === 'true') return true;
-        if (trimmed === 'false') return false;
-        if (trimmed === 'null' || trimmed === '~') return null;
+        if (trimmed === '') {
+            return '';
+        }
+        if (trimmed === 'true') {
+            return true;
+        }
+        if (trimmed === 'false') {
+            return false;
+        }
+        if (trimmed === 'null' || trimmed === '~') {
+            return null;
+        }
 
         // 数字
-        if (/^-?\d+$/.test(trimmed)) return parseInt(trimmed, 10);
-        if (/^-?\d*\.\d+$/.test(trimmed)) return parseFloat(trimmed);
+        if (/^-?\d+$/.test(trimmed)) {
+            return parseInt(trimmed, 10);
+        }
+        if (/^-?\d*\.\d+$/.test(trimmed)) {
+            return parseFloat(trimmed);
+        }
 
         // 日期格式 (YYYY-MM-DD 或 YYYY-MM-DD HH:mm)
         const dateRegex = /^\d{4}-\d{2}-\d{2}(?:\s+\d{1,2}:\d{2})?$/;

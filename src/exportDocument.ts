@@ -29,20 +29,109 @@ interface ExportOptions {
 	header?: string;
 	footer?: string;
 	html?: boolean;
+	customCSS?: string;
+	cssFiles?: string[];
+}
+
+/**
+ * 提取文档中的YAML frontmatter
+ */
+function extractFrontmatter(content: string): Record<string, any> {
+	// 提取YAML frontmatter
+	const yamlLines = content.split('\n');
+	let yamlEndIndex = -1;
+	const yamlLines_content: string[] = [];
+
+	// 检查是否以YAML分隔符开始
+	if (yamlLines.length >= 2 && yamlLines[0].trim() === '---') {
+		for (let i = 1; i < yamlLines.length; i++) {
+			if (yamlLines[i].trim() === '---') {
+				yamlEndIndex = i;
+				break;
+			}
+			yamlLines_content.push(yamlLines[i]);
+		}
+	}
+
+	if (yamlEndIndex !== -1) {
+		const yamlContent = yamlLines_content.join('\n');
+		try {
+			const { SimpleYAMLParser } = require('./utils/YamlParser');
+			return SimpleYAMLParser.parse(yamlContent);
+		} catch (error) {
+			console.warn('Failed to parse YAML frontmatter:', error);
+		}
+	}
+
+	return {};
 }
 
 export async function exportDocument(format: 'html' | 'pdf') {
 	const config = vscode.workspace.getConfiguration('markdown-fence');
 	const exportData = config.get<ExportOptions>('export');
 
-	const render = await markdownRender({ html: exportData?.html });
+	// 先读取文档内容并提取frontmatter
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		vscode.window.showErrorMessage(vscode.l10n.t('No Markdown document is open'));
+		return;
+	}
+
+	if (editor.document.languageId !== 'markdown') {
+		vscode.window.showErrorMessage(vscode.l10n.t('The current document is not a Markdown document'));
+		return;
+	}
+
+	const filePath = editor.document.uri.fsPath;
+	const fileName = path.basename(filePath, '.md');
+
+	// 读取内容并提取frontmatter
+	const content = await fs.promises.readFile(filePath, 'utf8');
+	const frontmatter = extractFrontmatter(content);
+
+	// 合并配置：优先使用YAML中的设置，其次使用VS Code设置
+	const yamlExportData = frontmatter || {};
+	const finalExportData = {
+		...exportData,
+		...yamlExportData,
+		// 如果YAML中定义了html，则覆盖VS Code设置
+		html: yamlExportData.html !== undefined ? yamlExportData.html : exportData?.html,
+		margin: {
+			...exportData?.margin,
+			...yamlExportData?.margin,
+		},
+		header: yamlExportData.header !== undefined ? yamlExportData.header : exportData?.header,
+		footer: yamlExportData.footer !== undefined ? yamlExportData.footer : exportData?.footer,
+		size: yamlExportData.size !== undefined ? yamlExportData.size : exportData?.size,
+		customCSS: yamlExportData.customCSS !== undefined ? yamlExportData.customCSS : exportData?.customCSS,
+		cssFiles: yamlExportData.cssFiles !== undefined ? yamlExportData.cssFiles : exportData?.cssFiles,
+	};
+
+	// 现在传递合并后的配置给markdownRender
+	const render = await markdownRender({ html: finalExportData?.html });
 	if (!render || !render.html) {
 		return;
 	}
-	const { fileName, filePath, html } = render;
+	const { html } = render;
 
 	if (format === 'pdf') {
 		try {
+			// 加载额外CSS文件
+			const additionalCss = await loadCssFiles(finalExportData.cssFiles || [], filePath);
+
+			// 合并所有CSS
+			const allStyles = [
+				render.css,
+				finalExportData.customCSS || '',
+				additionalCss
+			].filter(Boolean).join('\n');
+
+			// 重新构建HTML，嵌入自定义CSS
+			const finalHtml = html.replace(
+				/<style>.*?<\/style>/s,
+				`<style>${allStyles}</style>`
+			);
+
 			const pageNumber = `<span class="pageNumber"></span>`;
 			const totalPages = `<span class="totalPages"></span>`;
 			const title = render.fileName;
@@ -57,17 +146,17 @@ export async function exportDocument(format: 'html' | 'pdf') {
 				args: ['--no-sandbox', '--disable-setuid-sandbox'] // 解决 Linux 下的权限问题
 			});
 			const page = await browser.newPage();
-			await page.setContent(html);
+			await page.setContent(finalHtml);
 
 			const log = (x: any) => console.log(x);
 			await handleMermaidRendering(page, log);
 			// 添加额外的等待时间确保所有内容加载完成
 			await page.waitForNetworkIdle({ idleTime: 500 });
 
-			const paperSize = exportData?.size;
-			const margin = exportData?.margin;
-			let header = exportData?.header;
-			let footer = exportData?.footer;
+			const paperSize = finalExportData?.size;
+			const margin = finalExportData?.margin;
+			let header = finalExportData?.header;
+			let footer = finalExportData?.footer;
 
 			header = replaceKeyValue(header, keyList);
 			footer = replaceKeyValue(footer, keyList);
@@ -98,9 +187,25 @@ export async function exportDocument(format: 'html' | 'pdf') {
 
 	else if (format === "html") {
 		try {
+			// 加载额外CSS文件
+			const additionalCss = await loadCssFiles(finalExportData.cssFiles || [], filePath);
+
+			// 合并所有CSS
+			const allStyles = [
+				render.css,
+				finalExportData.customCSS || '',
+				additionalCss
+			].filter(Boolean).join('\n');
+
+			// 重新构建HTML，嵌入自定义CSS
+			const finalHtml = html.replace(
+				/<style>.*?<\/style>/s,
+				`<style>${allStyles}</style>`
+			);
+
 			const htmlPath = path.join(path.dirname(filePath), `${fileName}.html`);
 			// 将 HTML 文件写入磁盘
-			await fs.promises.writeFile(htmlPath, html, 'utf8');
+			await fs.promises.writeFile(htmlPath, finalHtml, 'utf8');
 			// 显示成功消息
 			vscode.window.showInformationMessage(vscode.l10n.t(`Successfully exported HTML file to {0}`, htmlPath));
 
@@ -213,6 +318,45 @@ async function loadImageFile(imagePath: string, filePath: string) {
 	}
 }
 
+/**
+ * 加载CSS文件内容，支持相对路径和URL
+ */
+async function loadCssFiles(cssFiles: string[], filePath: string): Promise<string> {
+	if (!cssFiles || cssFiles.length === 0) {
+		return '';
+	}
+
+	const fetch = await import('node-fetch').then(m => m.default);
+
+	const cssContents = await Promise.all(
+		cssFiles.map(async (cssFile) => {
+			try {
+				if (cssFile.startsWith('http://') || cssFile.startsWith('https://')) {
+					// 从URL加载
+					const response = await fetch(cssFile);
+					if (response.ok) {
+						return await response.text();
+					} else {
+						console.warn(vscode.l10n.t('Failed to load CSS from URL: {0}', cssFile));
+						return '';
+					}
+				} else {
+					// 从相对路径加载
+					const absolutePath = path.isAbsolute(cssFile)
+						? cssFile
+						: path.join(path.dirname(filePath), cssFile);
+					return await fs.promises.readFile(absolutePath, 'utf8');
+				}
+			} catch (error: any) {
+				console.warn(vscode.l10n.t('Failed to load CSS file: {0}, error: {1}', cssFile, error.message));
+				return '';
+			}
+		})
+	);
+
+	return cssContents.join('\n');
+}
+
 async function markdownRender(options?: MarkdownIt.Options) {
 	// 获取当前活动的文本编辑器
 	const editor = vscode.window.activeTextEditor;
@@ -236,12 +380,11 @@ async function markdownRender(options?: MarkdownIt.Options) {
 		// 创建带插件的 MarkdownIt 实例
 		const md = new MarkdownIt(options ?? {}).use(yamlFrontMatterPlugin, { remove: true }).use(fencePlugin);
 
-		// 获取样式内容
-		const cssPath = path.join(__dirname, '../css/fence.css');
-		const styles = await fs.promises.readFile(cssPath, 'utf8');
+		// 创建环境对象来存储frontmatter
+		const env: any = {};
 
 		// 渲染 Markdown 为 HTML
-		let htmlContent = md.render(content);
+		let htmlContent = md.render(content, env);
 
 		// Remove pre tag styles for mermaid code blocks
 		htmlContent = htmlContent.replace(/<pre><code class="language-mermaid">/g, '<pre class="no-style"><code class="language-mermaid">');
@@ -278,6 +421,10 @@ async function markdownRender(options?: MarkdownIt.Options) {
 		const markdownStyles: any[] | undefined = vscode.workspace.getConfiguration('markdown').get('styles');
 		const markdownStyleLinks = markdownStyles ? markdownStyles.map(style => `<link rel="stylesheet" href="${style}">`).join('\n') : '';
 
+		// 获取样式内容
+		const cssPath = path.join(__dirname, '../css/fence.css');
+		const defaultStyles = await fs.promises.readFile(cssPath, 'utf8');
+
 		// 构建完整的 HTML 文件
 		const fullHtml = `<!DOCTYPE html>
 <html>
@@ -285,7 +432,7 @@ async function markdownRender(options?: MarkdownIt.Options) {
 	<meta charset="UTF-8">
 	<title>${fileName}</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
-	<style>${styles}</style>
+	<style>${defaultStyles}</style>
 	${markdownStyleLinks}
 </head>
 <body>
@@ -310,7 +457,9 @@ async function markdownRender(options?: MarkdownIt.Options) {
 		return {
 			fileName: fileName,
 			filePath: filePath,
-			html: fullHtml
+			html: fullHtml,
+			frontmatter: env.frontmatter,
+			css: defaultStyles
 		};
 	}
 	catch (error: any) {

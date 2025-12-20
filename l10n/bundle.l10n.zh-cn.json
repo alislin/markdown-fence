@@ -14,5 +14,7 @@
     "Document generation failed: {0}": "文档生成失败: {0}",
     "Failed to convert image to base64: {0}": "无法将图片转换为 base64: {0}",
     "Mermaid rendering error:": "Mermaid 渲染错误:",
-    "Error occurred while processing Mermaid:": "处理 Mermaid 时发生错误:"
+    "Error occurred while processing Mermaid:": "处理 Mermaid 时发生错误:",
+    "Failed to load CSS from URL: {0}": "从 URL 加载 CSS 文件失败: {0}",
+    "Failed to load CSS file: {0}, error: {1}": "加载 CSS 文件失败: {0}, 错误: {1}"
 }

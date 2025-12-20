@@ -136,11 +136,40 @@ You can write style overrides according to your needs
 }
 ```
 
+## YAML Front Matter
+除了 VS Code 全局设置外，您还可以在 Markdown 文档的 front matter 中直接配置导出选项。YAML 配置将优先于 VS Code 设置使用。
+In addition to VS Code global settings, you can also directly configure export options in the front matter of your Markdown documents. YAML configuration will take priority over VS Code settings.
+
+详细配置说明请参考 [YAML_EXPORT_CONFIG.md](./YAML_EXPORT_CONFIG.md)
+For detailed configuration instructions, please refer to [YAML_EXPORT_CONFIG.md](./YAML_EXPORT_CONFIG.md)
+
+配置示例 Example:
+
+```yaml
+---
+html: true
+size: A4
+header: "Custom Document Header"
+footer: "Page {pageNumber} of {totalPages}"
+margin:
+  top: "20mm"
+  right: "10mm"
+  bottom: "20mm"
+  left: "10mm"
+customCSS: |
+  body {
+    font-family: 'Microsoft YaHei', sans-serif;
+  }
+cssFiles:
+  - "./styles/custom.css"
+---
+```
+
 ## 导出扩展语法
-使用 `<!-- pagebreak -->` 标记来强制分页，在打印或pdf时生效。  
+使用 `<!-- pagebreak -->` 标记来强制分页，在打印或pdf时生效。
 Use the `<!-- pagebreak -->` marker to force a page break, which is effective when printing or pdf.
 
-可以使用yaml设置强制分页章节级别，默认不启用强制章节分页  
+可以使用yaml设置强制分页章节级别，默认不启用强制章节分页
 You can use yaml to set the force page break section level, and the force page break is not enabled by default
 
 ```yaml

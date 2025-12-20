@@ -10,3 +10,6 @@ node_modules
 public
 *.test.js*
 /src/test/temp
+
+.claude
+claude.md
