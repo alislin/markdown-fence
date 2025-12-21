@@ -14,6 +14,7 @@ import { FencePluginOptions } from './fencePlugin';
 import { exportDocument } from './exportDocument';
 import { insertFence } from './insertFence';
 import { fenceSnippetRegist } from './fenceSnippet';
+import { PreviewStyleManager } from './previewStyleManager';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -21,7 +22,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// 注册代码片段
 	fenceSnippetRegist();
 
-	// return
+	// 初始化预览样式管理器
+	const styleManager = new PreviewStyleManager(context);
+
 	// 注册导出命令
 	context.subscriptions.push(
 		vscode.commands.registerCommand('extension.exportToHTML', async () => {
@@ -107,6 +110,32 @@ export function activate(context: vscode.ExtensionContext) {
 			const styles = config.get<FencePluginOptions>('styles');
 
 			md.use(fencePlugin, styles);
+
+			// 修改渲染器以注入样式
+			const originalRender = md.render.bind(md);
+			md.render = function(src: string, env?: any) {
+				const html = originalRender(src, env);
+
+				// 每次渲染时都同步检查并注入样式
+				const editor = vscode.window.activeTextEditor;
+				if (editor && editor.document.languageId === 'markdown') {
+					// 同步检查样式（customCSS 部分）
+					const syncStyleTags = styleManager.generateStyleTagsSync(editor.document);
+
+					// 如果有同步样式，立即注入
+					if (syncStyleTags) {
+						// 异步更新完整样式（包括外部 CSS 文件）
+						styleManager.generateStyleTags(editor.document).catch(error => {
+							console.warn('Failed to generate preview styles:', error);
+						});
+
+						// 立即返回包含样式的 HTML
+						return `${syncStyleTags}\n${html}`;
+					}
+				}
+
+				return html;
+			};
 
 			return md;
 		}
