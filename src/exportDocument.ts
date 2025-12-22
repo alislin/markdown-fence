@@ -150,13 +150,18 @@ export async function exportDocument(format: 'html' | 'pdf') {
 
 			const log = (x: any) => console.log(x);
 			await handleMermaidRendering(page, log);
-			// 添加额外的等待时间确保所有内容加载完成
-			await page.waitForNetworkIdle({ idleTime: 500 });
 
+			// 获取导出配置参数
 			const paperSize = finalExportData?.size;
 			const margin = finalExportData?.margin;
 			let header = finalExportData?.header;
 			let footer = finalExportData?.footer;
+
+			// 调整图片尺寸以适应PDF页面
+			await resizeImagesForPDF(page, header !== undefined || footer !== undefined, footer !== undefined, margin);
+
+			// 添加额外的等待时间确保所有内容加载完成
+			await page.waitForNetworkIdle({ idleTime: 500 });
 
 			header = replaceKeyValue(header, keyList);
 			footer = replaceKeyValue(footer, keyList);
@@ -261,6 +266,181 @@ async function handleMermaidRendering(page: Page, log: any): Promise<void> {
 	} catch (error) {
 		console.error(vscode.l10n.t('Error occurred while processing Mermaid:'), error);
 		throw error;
+	}
+}
+
+async function resizeImagesForPDF(
+	page: Page,
+	hasHeader: boolean,
+	hasFooter: boolean,
+	margin?: ExportOptions['margin']
+): Promise<void> {
+	try {
+		// 等待图片加载完成
+		await page.waitForSelector('img', { timeout: 10000 }).catch(() => {
+			// 如果没有图片，直接返回
+			return;
+		});
+
+		// 额外等待确保所有图片完全加载
+		await new Promise(resolve => setTimeout(resolve, 1000));
+
+		await page.evaluate(async (marginData) => {
+			// 获取所有图片元素
+			const images = document.querySelectorAll('img');
+
+			if (images.length === 0) {
+				return;
+			}
+
+			// 转换页边距值为数值（px）
+			const parseMargin = (marginStr?: string): number => {
+				if (!marginStr) {
+					return 0;
+				}
+				const match = marginStr.match(/([\d.]+)\s*(mm|px|cm|in)?/);
+				if (!match) {
+					return 0;
+				}
+				const value = parseFloat(match[1]);
+				const unit = match[2] || 'px';
+
+				// 转换不同单位为px（假设96 DPI）
+				switch (unit) {
+					case 'mm': return value * 3.779527559;
+					case 'cm': return value * 37.79527559;
+					case 'in': return value * 96;
+					default: return value;
+				}
+			};
+
+			const leftMargin = parseMargin(marginData?.left);
+			const rightMargin = parseMargin(marginData?.right);
+			const topMargin = parseMargin(marginData?.top);
+			const bottomMargin = parseMargin(marginData?.bottom);
+			// 如果用户未设置边距（undefined），使用默认值；如果设置为0mm，使用0
+			const effectiveLeftMargin = marginData?.left !== undefined ? leftMargin : parseMargin('10mm');
+			const effectiveRightMargin = marginData?.right !== undefined ? rightMargin : parseMargin('10mm');
+			const effectiveTopMargin = marginData?.top !== undefined ? topMargin : parseMargin('10mm');
+			const effectiveBottomMargin = marginData?.bottom !== undefined ? bottomMargin : parseMargin('10mm');
+
+			// 获取 body 的实际尺寸
+			const bodyElement = document.body;
+			const bodyStyle = window.getComputedStyle(bodyElement);
+			const bodyWidth = bodyElement.clientWidth || parseFloat(bodyStyle.width) || window.innerWidth;
+			const bodyHeight = bodyElement.clientHeight || parseFloat(bodyStyle.height) || window.innerHeight;
+			const availableWidth = bodyWidth - effectiveLeftMargin - effectiveRightMargin;
+			const availableHeight = bodyHeight - effectiveTopMargin - effectiveBottomMargin;
+
+			// 遍历所有图片
+			images.forEach((img) => {
+				const image = img as HTMLImageElement;
+
+				// 跳过隐藏的图片
+				if (image.offsetWidth === 0 || image.offsetHeight === 0) {
+					return;
+				}
+
+				// 检查图片是否完全加载
+				if (!image.complete || image.naturalWidth === 0) {
+					return;
+				}
+
+				// 获取原始尺寸
+				const naturalWidth = image.naturalWidth;
+				const naturalHeight = image.naturalHeight;
+
+				// 判断图片方向（横向：宽>高，竖向：高>宽）
+				const isImageLandscape = naturalWidth > naturalHeight;
+				const isPageLandscape = availableWidth > availableHeight;
+
+				// 如果图片方向与页面方向不匹配，先旋转再缩放
+				if (isImageLandscape !== isPageLandscape) {
+					// 先旋转图片
+					image.style.transform = 'rotate(-90deg)';
+					image.style.transformOrigin = 'center center';
+					image.style.display = 'block';
+					image.style.margin = '0 auto';
+
+					// 旋转后宽高互换，使用新的尺寸进行缩放计算
+					const finalWidth = naturalHeight;
+					const finalHeight = naturalWidth;
+
+					// 计算缩放比例
+					const widthScale = availableWidth / finalWidth;
+					const heightScale = availableHeight / finalHeight;
+
+					// 检查图片比例与页面比例的接近程度（差异小于15%）
+					const imageAspectRatio = finalWidth / finalHeight;
+					const pageAspectRatio = availableWidth / availableHeight;
+					const aspectRatioDiff = Math.abs(imageAspectRatio - pageAspectRatio) / pageAspectRatio;
+
+					let newWidth: number;
+					let scale: number;
+
+					if (aspectRatioDiff < 0.15) {
+						// 图片比例接近页面比例，优先使用高度缩放以填满页面
+						scale = heightScale;
+						newWidth = finalWidth * scale;
+
+						// 添加分页标记
+						image.style.breakAfter = 'page';
+						image.style.breakInside = 'avoid';
+					} else {
+						// 使用较小的缩放比例，确保图片完全适应页面
+						scale = Math.min(widthScale, heightScale);
+						newWidth = finalWidth * scale;
+					}
+
+					// 应用缩放样式
+					image.style.maxWidth = newWidth + 'px';
+					image.style.height = 'auto';
+					image.style.width = newWidth + 'px';
+				} else {
+					// 图片方向与页面方向匹配，无需旋转，直接缩放
+
+					// 计算缩放比例
+					const widthScale = availableWidth / naturalWidth;
+					const heightScale = availableHeight / naturalHeight;
+
+					// 如果图片超出宽度或高度，需要缩放
+					if (widthScale < 1 || heightScale < 1) {
+						let newWidth: number;
+						let scale: number;
+
+						// 计算图片宽高比和页面宽高比
+						const imageAspectRatio = naturalWidth / naturalHeight;
+						const pageAspectRatio = availableWidth / availableHeight;
+
+						// 检查图片比例与页面比例的接近程度（差异小于15%）
+						const aspectRatioDiff = Math.abs(imageAspectRatio - pageAspectRatio) / pageAspectRatio;
+
+						if (aspectRatioDiff < 0.15) {
+							// 图片比例接近页面比例，优先使用高度缩放以填满页面
+							scale = heightScale;
+							newWidth = naturalWidth * scale;
+
+							// 添加分页标记（使用现代CSS属性）
+							image.style.breakAfter = 'page';
+							image.style.breakInside = 'avoid';
+						} else {
+							// 使用较小的缩放比例，确保图片完全适应页面
+							scale = Math.min(widthScale, heightScale);
+							newWidth = naturalWidth * scale;
+						}
+
+						// 应用缩放样式
+						image.style.maxWidth = newWidth + 'px';
+						image.style.height = 'auto';
+						image.style.width = newWidth + 'px';
+					}
+				}
+			});
+		}, margin);
+
+	} catch (error) {
+		console.error('Error resizing images for PDF:', error);
+		// 不抛出错误，避免中断 PDF 生成流程
 	}
 }
 
