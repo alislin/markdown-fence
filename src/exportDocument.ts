@@ -329,8 +329,11 @@ async function resizeImagesForPDF(
 			const bodyStyle = window.getComputedStyle(bodyElement);
 			const bodyWidth = bodyElement.clientWidth || parseFloat(bodyStyle.width) || window.innerWidth;
 			const bodyHeight = bodyElement.clientHeight || parseFloat(bodyStyle.height) || window.innerHeight;
-			const availableWidth = bodyWidth - effectiveLeftMargin - effectiveRightMargin;
-			const availableHeight = bodyHeight - effectiveTopMargin - effectiveBottomMargin;
+			const pageWidth = bodyWidth - effectiveLeftMargin - effectiveRightMargin;
+			const pageHeight = bodyHeight - effectiveTopMargin - effectiveBottomMargin;
+
+			const availableWidth = pageWidth * 0.9;
+			const availableHeight = pageHeight * 0.9;
 
 			// 遍历所有图片
 			images.forEach((img) => {
@@ -354,29 +357,75 @@ async function resizeImagesForPDF(
 				const isImageLandscape = naturalWidth > naturalHeight;
 				const isPageLandscape = availableWidth > availableHeight;
 
-				// 如果图片方向与页面方向不匹配，先旋转再缩放
+				// 计算页面面积
+				const pageArea = availableWidth * availableHeight;
+
+				let shouldRotate = false;
+				let finalWidth: number;
+				let finalHeight: number;
+
+				// 如果图片方向与页面方向不匹配，评估旋转的效益
 				if (isImageLandscape !== isPageLandscape) {
-					// 先旋转图片
+					// 计算旋转后的尺寸
+					const rotatedWidth = naturalHeight;
+					const rotatedHeight = naturalWidth;
+
+					// 计算两种方式下的缩放比例和实际显示面积
+					// 方式1：不旋转
+					const noRotateWidthScale = availableWidth / naturalWidth;
+					const noRotateHeightScale = availableHeight / naturalHeight;
+					const noRotateScale = Math.min(noRotateWidthScale, noRotateHeightScale);
+					const noRotateDisplayArea = (naturalWidth * noRotateScale) * (naturalHeight * noRotateScale);
+
+					// 方式2：旋转
+					const rotateWidthScale = availableWidth / rotatedWidth;
+					const rotateHeightScale = availableHeight / rotatedHeight;
+					const rotateScale = Math.min(rotateWidthScale, rotateHeightScale);
+					const rotateDisplayArea = (rotatedWidth * rotateScale) * (rotatedHeight * rotateScale);
+
+					// 计算面积利用率（实际显示面积 / 页面面积）
+					const noRotateAreaRatio = noRotateDisplayArea / pageArea;
+					const rotateAreaRatio = rotateDisplayArea / pageArea;
+
+					// 只有当旋转后的面积利用率比不旋转高至少5%时，才进行旋转
+					const improvementThreshold = 0.05;
+					if (rotateAreaRatio > noRotateAreaRatio * (1 + improvementThreshold) && rotateAreaRatio > 0.7) {
+						shouldRotate = true;
+						finalWidth = rotatedWidth;
+						finalHeight = rotatedHeight;
+					} else {
+						finalWidth = naturalWidth;
+						finalHeight = naturalHeight;
+					}
+				} else {
+					// 方向匹配，无需旋转
+					finalWidth = naturalWidth;
+					finalHeight = naturalHeight;
+				}
+
+				// 如果需要旋转，添加旋转样式
+				if (shouldRotate) {
 					image.style.transform = 'rotate(-90deg)';
 					image.style.transformOrigin = 'center center';
 					image.style.display = 'block';
 					image.style.margin = '0 auto';
+				}
 
-					// 旋转后宽高互换，使用新的尺寸进行缩放计算
-					const finalWidth = naturalHeight;
-					const finalHeight = naturalWidth;
+				// 计算缩放比例
+				const widthScale = availableWidth / finalWidth;
+				const heightScale = availableHeight / finalHeight;
 
-					// 计算缩放比例
-					const widthScale = availableWidth / finalWidth;
-					const heightScale = availableHeight / finalHeight;
-
-					// 检查图片比例与页面比例的接近程度（差异小于15%）
-					const imageAspectRatio = finalWidth / finalHeight;
-					const pageAspectRatio = availableWidth / availableHeight;
-					const aspectRatioDiff = Math.abs(imageAspectRatio - pageAspectRatio) / pageAspectRatio;
-
+				// 如果图片超出宽度或高度，需要缩放
+				if (widthScale < 1 || heightScale < 1) {
 					let newWidth: number;
 					let scale: number;
+
+					// 计算图片宽高比和页面宽高比
+					const imageAspectRatio = finalWidth / finalHeight;
+					const pageAspectRatio = availableWidth / availableHeight;
+
+					// 检查图片比例与页面比例的接近程度（差异小于15%）
+					const aspectRatioDiff = Math.abs(imageAspectRatio - pageAspectRatio) / pageAspectRatio;
 
 					if (aspectRatioDiff < 0.15) {
 						// 图片比例接近页面比例，优先使用高度缩放以填满页面
@@ -396,44 +445,6 @@ async function resizeImagesForPDF(
 					image.style.maxWidth = newWidth + 'px';
 					image.style.height = 'auto';
 					image.style.width = newWidth + 'px';
-				} else {
-					// 图片方向与页面方向匹配，无需旋转，直接缩放
-
-					// 计算缩放比例
-					const widthScale = availableWidth / naturalWidth;
-					const heightScale = availableHeight / naturalHeight;
-
-					// 如果图片超出宽度或高度，需要缩放
-					if (widthScale < 1 || heightScale < 1) {
-						let newWidth: number;
-						let scale: number;
-
-						// 计算图片宽高比和页面宽高比
-						const imageAspectRatio = naturalWidth / naturalHeight;
-						const pageAspectRatio = availableWidth / availableHeight;
-
-						// 检查图片比例与页面比例的接近程度（差异小于15%）
-						const aspectRatioDiff = Math.abs(imageAspectRatio - pageAspectRatio) / pageAspectRatio;
-
-						if (aspectRatioDiff < 0.15) {
-							// 图片比例接近页面比例，优先使用高度缩放以填满页面
-							scale = heightScale;
-							newWidth = naturalWidth * scale;
-
-							// 添加分页标记（使用现代CSS属性）
-							image.style.breakAfter = 'page';
-							image.style.breakInside = 'avoid';
-						} else {
-							// 使用较小的缩放比例，确保图片完全适应页面
-							scale = Math.min(widthScale, heightScale);
-							newWidth = naturalWidth * scale;
-						}
-
-						// 应用缩放样式
-						image.style.maxWidth = newWidth + 'px';
-						image.style.height = 'auto';
-						image.style.width = newWidth + 'px';
-					}
 				}
 			});
 		}, margin);
