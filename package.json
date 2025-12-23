@@ -120,6 +120,12 @@
             "type": "string",
             "description": "%config.export.margin.left%",
             "order": 5
+          },
+          "markdown-fence.export.autoRotate": {
+            "type": "boolean",
+            "default": true,
+            "description": "%config.export.autoRotate%",
+            "order": 6
           }
         }
       }

@@ -122,6 +122,7 @@ after render:
 | `margin.right`  | Right margin of the exported PDF                                                                | `5mm`   |                                                                            |
 | `margin.bottom` | Bottom margin of the exported PDF                                                               | `10mm`  |                                                                            |
 | `margin.left`   | Left margin of the exported PDF                                                                 | `5mm`   |                                                                            |
+| `autoRotate`    | Enable automatic image rotation for better page utilization                                      | `true`  | `false`                                                                    |
 
 ## 样式 style
 可以根据自己的需要编写样式覆盖  
@@ -140,9 +141,6 @@ You can write style overrides according to your needs
 除了 VS Code 全局设置外，您还可以在 Markdown 文档的 front matter 中直接配置导出选项。YAML 配置将优先于 VS Code 设置使用。
 In addition to VS Code global settings, you can also directly configure export options in the front matter of your Markdown documents. YAML configuration will take priority over VS Code settings.
 
-详细配置说明请参考 [YAML_EXPORT_CONFIG.md](./YAML_EXPORT_CONFIG.md)
-For detailed configuration instructions, please refer to [YAML_EXPORT_CONFIG.md](./YAML_EXPORT_CONFIG.md)
-
 配置示例 Example:
 
 ```yaml
@@ -156,6 +154,7 @@ margin:
   right: "10mm"
   bottom: "20mm"
   left: "10mm"
+autoRotate: true
 customCSS: |
   body {
     font-family: 'Microsoft YaHei', sans-serif;
@@ -176,6 +175,30 @@ You can use yaml to set the force page break section level, and the force page b
 ---
 pageLevel: [1,2]
 ---
+```
+
+## 图片自动旋转与缩放
+PDF 导出时，图片会自动调整大小和方向以充分利用页面空间：
+
+**功能特性**：
+- **智能缩放**：自动检测图片尺寸，确保不超出页面边界
+- **方向匹配**：检测图片方向（横向/竖向）与页面方向，自动旋转不匹配的图片
+- **面积利用率优化**：仅当旋转能显著提高页面利用率（≥5%）时才执行旋转
+- **整页显示**：当图片比例与页面比例接近时，自动填满页面
+- **自动分页**：大图片会独立成页，避免内容截断
+
+**禁用自动旋转**：
+```yaml
+---
+autoRotate: false
+---
+```
+
+或通过 VS Code 设置：
+```json
+{
+  "markdown-fence.export.autoRotate": false
+}
 ```
 
 ## docsify plugin 插件支持

@@ -16,5 +16,14 @@
     "Mermaid rendering error:": "Mermaid 渲染错误:",
     "Error occurred while processing Mermaid:": "处理 Mermaid 时发生错误:",
     "Failed to load CSS from URL: {0}": "从 URL 加载 CSS 文件失败: {0}",
-    "Failed to load CSS file: {0}, error: {1}": "加载 CSS 文件失败: {0}, 错误: {1}"
+    "Failed to load CSS file: {0}, error: {1}": "加载 CSS 文件失败: {0}, 错误: {1}",
+    "%config.export.header%": "导出 HTML/PDF 的页眉内容",
+    "%config.export.footer%": "导出 HTML/PDF 的页脚内容",
+    "%config.export.html%": "导出为 HTML 格式",
+    "%config.export.size%": "PDF 页面大小",
+    "%config.export.margin.top%": "PDF 页面上边距",
+    "%config.export.margin.right%": "PDF 页面右边距",
+    "%config.export.margin.bottom%": "PDF 页面下边距",
+    "%config.export.margin.left%": "PDF 页面左边距",
+    "%config.export.autoRotate%": "启用图片自动旋转"
 }

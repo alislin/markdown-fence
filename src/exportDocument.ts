@@ -31,6 +31,7 @@ interface ExportOptions {
 	html?: boolean;
 	customCSS?: string;
 	cssFiles?: string[];
+	autoRotate?: boolean;
 }
 
 /**
@@ -105,6 +106,7 @@ export async function exportDocument(format: 'html' | 'pdf') {
 		size: yamlExportData.size !== undefined ? yamlExportData.size : exportData?.size,
 		customCSS: yamlExportData.customCSS !== undefined ? yamlExportData.customCSS : exportData?.customCSS,
 		cssFiles: yamlExportData.cssFiles !== undefined ? yamlExportData.cssFiles : exportData?.cssFiles,
+		autoRotate: yamlExportData.autoRotate !== undefined ? yamlExportData.autoRotate : exportData?.autoRotate,
 	};
 
 	// 现在传递合并后的配置给markdownRender
@@ -154,11 +156,12 @@ export async function exportDocument(format: 'html' | 'pdf') {
 			// 获取导出配置参数
 			const paperSize = finalExportData?.size;
 			const margin = finalExportData?.margin;
+			const autoRotate = finalExportData?.autoRotate !== false; // 默认启用
 			let header = finalExportData?.header;
 			let footer = finalExportData?.footer;
 
 			// 调整图片尺寸以适应PDF页面
-			await resizeImagesForPDF(page, header !== undefined || footer !== undefined, footer !== undefined, margin);
+			await resizeImagesForPDF(page, header !== undefined || footer !== undefined, footer !== undefined, margin, autoRotate);
 
 			// 添加额外的等待时间确保所有内容加载完成
 			await page.waitForNetworkIdle({ idleTime: 500 });
@@ -273,7 +276,8 @@ async function resizeImagesForPDF(
 	page: Page,
 	hasHeader: boolean,
 	hasFooter: boolean,
-	margin?: ExportOptions['margin']
+	margin?: ExportOptions['margin'],
+	autoRotate: boolean = true
 ): Promise<void> {
 	try {
 		// 等待图片加载完成
@@ -364,8 +368,8 @@ async function resizeImagesForPDF(
 				let finalWidth: number;
 				let finalHeight: number;
 
-				// 如果图片方向与页面方向不匹配，评估旋转的效益
-				if (isImageLandscape !== isPageLandscape) {
+				// 如果图片方向与页面方向不匹配，且启用了自动旋转，评估旋转的效益
+				if (isImageLandscape !== isPageLandscape && autoRotate) {
 					// 计算旋转后的尺寸
 					const rotatedWidth = naturalHeight;
 					const rotatedHeight = naturalWidth;
