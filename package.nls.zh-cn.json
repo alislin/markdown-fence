@@ -7,10 +7,11 @@
     "config.export.size": "导出 PDF 纸张大小",
     "config.export.margin.top": "导出 PDF 边距顶部 (默认: 20mm)",
     "config.export.margin.right": "导出 PDF 边距右侧 (默认: 5mm)",
-    "config.export.margin.bottom": "导出 PDF 边距底部 (默认: 10mm))",
+    "config.export.margin.bottom": "导出 PDF 边距底部 (默认: 10mm)",
     "config.export.margin.left": "导出 PDF 边距左侧 (默认: 5mm)",
     "config.export.html": "导出允许 Html 标签",
+    "config.export.autoRotate": "启用图片自动旋转",
     "snippet.fenceStart": "创建 fence 块容器",
     "snippet.fence": "在 fence 块中添加分割点",
-    "error.unclosedFence": "存在未闭合的 fence 块 (开始标记: ${startMarkers.length}, 结束标记: ${endMarkers.length})"
+    "error.unclosedFence": "检测到未闭合的 fence 块 (开始标记: ${startMarkers.length}, 结束标记: ${endMarkers.length})"
 }
