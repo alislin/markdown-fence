@@ -4,17 +4,9 @@
  * @Description: fence 核心类型定义
  */
 
-export type FenceStyle = 'standard' | 'short' | 'main';
-export type FencePosition = 'start' | 'split' | 'end';
+import type { FenceStyle, FencePosition, FenceMarkDefinition } from '../fenceMark';
 
-export interface FenceMarkDefinition {
-  type: FenceStyle;
-  START: string;
-  END: string;
-  SPLIT: string;
-  blockClass?: string;
-  itemClass?: string;
-}
+export type { FenceStyle, FencePosition, FenceMarkDefinition };
 
 export interface FenceBlock {
   type: FenceStyle;
