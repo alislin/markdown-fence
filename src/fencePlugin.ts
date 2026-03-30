@@ -7,7 +7,7 @@
  */
 import MarkdownIt from 'markdown-it';
 import { FenceMarks, FenceMarkDefinition } from './fenceMark';
-import { stat } from 'fs';
+import { scanCodeBlockRanges, testTagMatch, isInCodeBlock } from './core/parser';
 
 interface FencePluginOptions {
   fenceStyle?: string;
@@ -25,7 +25,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
       // return false;
     }
     const content = state.src;
-    code_block = scanCodePostItems(content);
+    code_block = scanCodeBlockRanges(content);
     isScanCodeBlock = true;
     // console.log(code_block);
 
@@ -57,7 +57,7 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
       // 扫描直到结束标记
       while (currentLine++ < endLine) {
-        if (!isInCodePosItems(currentLine, code_block)) {
+        if (!isInCodeBlock(currentLine, code_block)) {
           const lineStart = state.bMarks[currentLine] + state.tShift[currentLine];
           const lineEnd = state.eMarks[currentLine];
           const lineContent = state.src.slice(lineStart, lineEnd);
@@ -128,46 +128,4 @@ export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions 
 
     return `<div class="${blockClass.join(" ")}" fence-type="${types.join(" ")}">\n${renderedItems}\n</div>`;
   };
-}
-
-function scanCodePostItems(content: string) {
-  let code_flag = false;
-  let code_block: { start: number; end: number; }[] = [];
-  const rows = content.split("\n");
-  let pos_start = 0;
-  let pos_end = 0;
-  // 扫描所有标记，记录
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (/^```/.test(row)) {
-      code_flag = !code_flag;
-      if (code_flag) {
-        pos_start = i;
-      }
-      else {
-        pos_end = i;
-        code_block.push({ start: pos_start, end: pos_end });
-      }
-    }
-  }
-  return code_block;
-}
-
-
-function testTagMatch(line: string, mark: string, codePosItems: { start: number; end: number }[]) {
-  const regex = new RegExp(mark);
-  const lineMark = new RegExp(`\`.*?${mark}.*?\``);
-  if (regex.test(line) && !lineMark.test(line)) {
-    return true;
-  }
-  return false;
-}
-
-function isInCodePosItems(index: number, codePosItems: { start: number; end: number }[]): boolean {
-  for (const codePos of codePosItems) {
-    if (index >= codePos.start && index <= codePos.end) {
-      return true;
-    }
-  }
-  return false;
 }
