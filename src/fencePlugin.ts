@@ -17,13 +17,10 @@ export type { FencePluginOptions };
 
 export default function fencePlugin(md: MarkdownIt, options: FencePluginOptions = {}) {
 
-  let isScanCodeBlock = false;
   let code_block: { start: number, end: number }[] = [];
 
   md.block.ruler.before('fence', 'code_block_begin', (state, startLine, endLine, silent) => {
     code_block = scanCodeBlockRanges(state.src);
-    isScanCodeBlock = true;
-    // console.log(code_block);
 
     return false;
   });
