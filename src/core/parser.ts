@@ -27,43 +27,69 @@ export function parseFenceBlocks(content: string, options?: ParseOptions): Parse
 }
 
 function findNextFenceBlock(content: string, marks: FenceMarkDefinition[], codeBlocks: CodeBlockRange[]): { block: FenceBlock; remainder: string } | null {
+  const lines = content.split('\n');
+  
   let fenceType: FenceMarkDefinition | null = null;
-  let firstMatchIndex = -1;
+  let startLineIndex = -1;
 
-  for (const mark of marks) {
-    const match = testTagMatch(content, mark.START, codeBlocks, true);
-    if (match && match.index !== undefined) {
-      const matchIndex = match.index;
-      if (firstMatchIndex === -1 || matchIndex < firstMatchIndex) {
+  for (let i = 0; i < lines.length; i++) {
+    if (isInCodeBlock(i, codeBlocks)) {
+      continue;
+    }
+    for (const mark of marks) {
+      if (testTagMatch(lines[i], mark.START, codeBlocks)) {
         fenceType = mark;
-        firstMatchIndex = matchIndex;
+        startLineIndex = i;
+        break;
       }
+    }
+    if (fenceType) {
+      break;
     }
   }
 
-  if (!fenceType || firstMatchIndex === -1) {
+  if (!fenceType || startLineIndex === -1) {
     return null;
   }
 
-  const startMatch = testTagMatch(content, fenceType.START, codeBlocks, true)!;
-  const startIndex = firstMatchIndex + startMatch[0].length;
-  
-  const endMatch = testTagMatch(content, fenceType.END, codeBlocks, true);
-  if (!endMatch || endMatch.index === undefined) {
+  const items: string[] = [];
+  let currentItem: string[] = [];
+  let endLineIndex = -1;
+
+  for (let i = startLineIndex + 1; i < lines.length; i++) {
+    if (isInCodeBlock(i, codeBlocks)) {
+      currentItem.push(lines[i]);
+      continue;
+    }
+
+    if (testTagMatch(lines[i], fenceType.END, codeBlocks)) {
+      if (currentItem.length > 0) {
+        items.push(currentItem.join('\n'));
+      }
+      endLineIndex = i;
+      break;
+    }
+
+    if (testTagMatch(lines[i], fenceType.SPLIT, codeBlocks)) {
+      items.push(currentItem.join('\n'));
+      currentItem = [];
+      continue;
+    }
+
+    currentItem.push(lines[i]);
+  }
+
+  if (endLineIndex === -1) {
     return null;
   }
-  const endIndex = endMatch.index;
 
-  const blockContent = content.substring(startIndex, endIndex);
-  const items = splitBySplitMark(blockContent, fenceType.SPLIT, codeBlocks);
-  
   const fenceBlock: FenceBlock = {
     type: fenceType.type,
     items: items.map(rawContent => parseFenceItem(rawContent.trim()))
   };
 
-  const remainder = content.substring(endIndex + endMatch[0].length);
-  
+  const remainder = lines.slice(endLineIndex + 1).join('\n');
+
   return { block: fenceBlock, remainder };
 }
 
@@ -108,26 +134,13 @@ export function scanCodeBlockRanges(content: string): CodeBlockRange[] {
   return codeBlocks;
 }
 
-export function testTagMatch(line: string, mark: string, codeBlocks: CodeBlockRange[], findAll: boolean = false): RegExpMatchArray | null {
-  const regex = new RegExp(mark, findAll ? 'g' : '');
+export function testTagMatch(line: string, mark: string, codeBlocks: CodeBlockRange[]): boolean {
+  const regex = new RegExp(mark);
   const lineMark = new RegExp(`\`.*?${mark}.*?\``);
-  
-  if (findAll) {
-    const results: RegExpMatchArray[] = [];
-    let match;
-    while ((match = regex.exec(line)) !== null) {
-      if (!lineMark.test(line)) {
-        results.push(match);
-      }
-    }
-    return results.length > 0 ? results[0] : null;
+  if (regex.test(line) && !lineMark.test(line)) {
+    return true;
   }
-  
-  const match = line.match(regex);
-  if (match && !lineMark.test(line)) {
-    return match;
-  }
-  return null;
+  return false;
 }
 
 export function isInCodeBlock(lineIndex: number, codeBlocks: CodeBlockRange[]): boolean {

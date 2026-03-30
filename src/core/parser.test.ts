@@ -26,17 +26,38 @@ suite('scanCodeBlockRanges', () => {
 suite('testTagMatch', () => {
   test('should match standard fence start', () => {
     const line = '<!-- fence:start -->';
-    const mark = 'fence:start';
+    const mark = '<!-- *?fence:start *?-->';
     const result = testTagMatch(line, mark, []);
-    assert.notStrictEqual(result, null);
+    assert.strictEqual(result, true);
   });
 
   test('should not match in code block', () => {
     const line = '<!-- fence:start -->';
-    const mark = 'fence:start';
+    const mark = '<!-- *?fence:start *?-->';
     const codeBlocks = [{ start: 0, end: 2 }];
     const result = testTagMatch(line, mark, codeBlocks);
-    assert.strictEqual(result, null);
+    assert.strictEqual(result, false);
+  });
+
+  test('should not match inline code', () => {
+    const line = '`<!-- fence:start -->`';
+    const mark = '<!-- *?fence:start *?-->';
+    const result = testTagMatch(line, mark, []);
+    assert.strictEqual(result, false);
+  });
+
+  test('should match short style start', () => {
+    const line = '<!-- >>> -->';
+    const mark = '<!-- *?>>> *?-->';
+    const result = testTagMatch(line, mark, []);
+    assert.strictEqual(result, true);
+  });
+
+  test('should match main style start', () => {
+    const line = '/>>> ';
+    const mark = '/>{3,}';
+    const result = testTagMatch(line, mark, []);
+    assert.strictEqual(result, true);
   });
 });
 
@@ -79,5 +100,167 @@ Content 2
     const result = parseFenceBlocks(content);
     assert.strictEqual(result.blocks.length, 0);
     assert.strictEqual(result.remainder, content);
+  });
+
+  test('should parse short style fence block', () => {
+    const content = `<!-- >>> -->
+**Short Title 1**
+
+Short Content 1
+
+<!-- --- -->
+
+**Short Title 2**
+
+Short Content 2
+
+<!-- <<< -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].type, 'short');
+    assert.strictEqual(result.blocks[0].items.length, 2);
+    assert.strictEqual(result.blocks[0].items[0].title, 'Short Title 1');
+    assert.strictEqual(result.blocks[0].items[0].content, 'Short Content 1');
+  });
+
+  test('should parse main style fence block', () => {
+    const content = `/>>> 
+**Main Title 1**
+
+Main Content 1
+
+/--- 
+
+**Main Title 2**
+
+Main Content 2
+
+/<<< `;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].type, 'main');
+    assert.strictEqual(result.blocks[0].items.length, 2);
+    assert.strictEqual(result.blocks[0].items[0].title, 'Main Title 1');
+    assert.strictEqual(result.blocks[0].items[0].content, 'Main Content 1');
+  });
+
+  test('should parse fence block with code block inside', () => {
+    const content = `<!-- fence:start -->
+**Title with code**
+
+\`\`\`javascript
+const x = 1;
+\`\`\`
+
+<!-- fence -->
+
+**Title 2**
+
+Content 2
+
+<!-- fence:end -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].items.length, 2);
+    assert.strictEqual(result.blocks[0].items[0].title, 'Title with code');
+    assert.ok(result.blocks[0].items[0].content.includes('const x = 1'));
+  });
+
+  test('should parse multiple fence blocks', () => {
+    const content = `<!-- fence:start -->
+**First Block**
+
+First Content
+<!-- fence:end -->
+
+Some text between
+
+<!-- fence:start -->
+**Second Block**
+
+Second Content
+<!-- fence:end -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 2);
+    assert.strictEqual(result.blocks[0].items[0].title, 'First Block');
+    assert.strictEqual(result.blocks[1].items[0].title, 'Second Block');
+    assert.strictEqual(result.remainder.trim(), 'Some text between');
+  });
+
+  test('should not parse fence markers inside code blocks', () => {
+    const content = `\`\`\`markdown
+<!-- fence:start -->
+some content
+<!-- fence:end -->
+\`\`\`
+
+<!-- fence:start -->
+**Real Block**
+
+Real Content
+<!-- fence:end -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].items[0].title, 'Real Block');
+  });
+
+  test('should handle short style fence markers inside code blocks', () => {
+    const content = `\`\`\`
+<!-- >>> -->
+content
+<!-- <<< -->
+\`\`\`
+
+<!-- >>> -->
+**Real**
+
+Real Content
+<!-- <<< -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].items[0].title, 'Real');
+  });
+
+  test('should return empty remainder for content after last fence', () => {
+    const content = `<!-- fence:start -->
+**Title**
+
+Content
+<!-- fence:end -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.remainder, '');
+  });
+
+  test('should filter by style when options.styles is specified', () => {
+    const content = `<!-- fence:start -->
+**Standard**
+
+Content
+<!-- fence:end -->
+
+/>>> 
+**Main**
+
+Main Content
+/<<< `;
+    const result = parseFenceBlocks(content, { styles: ['main'] });
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].type, 'main');
+  });
+
+  test('should handle fence block with no title', () => {
+    const content = `<!-- fence:start -->
+Just content
+
+<!-- fence -->
+
+More content
+
+<!-- fence:end -->`;
+    const result = parseFenceBlocks(content);
+    assert.strictEqual(result.blocks.length, 1);
+    assert.strictEqual(result.blocks[0].items[0].title, undefined);
+    assert.strictEqual(result.blocks[0].items[0].content, 'Just content');
   });
 });
