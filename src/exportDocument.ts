@@ -110,7 +110,10 @@ export async function exportDocument(format: 'html' | 'pdf') {
 	};
 
 	// 现在传递合并后的配置给markdownRender
-	const render = await markdownRender({ html: finalExportData?.html });
+	const render = await markdownRender({ 
+		html: finalExportData?.html,
+		forceLightTheme: format === 'pdf'
+	});
 	if (!render || !render.html) {
 		return;
 	}
@@ -552,7 +555,7 @@ async function loadCssFiles(cssFiles: string[], filePath: string): Promise<strin
 	return cssContents.join('\n');
 }
 
-async function markdownRender(options?: MarkdownIt.Options) {
+async function markdownRender(options?: MarkdownIt.Options & { forceLightTheme?: boolean }) {
 	// 获取当前活动的文本编辑器
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {
@@ -620,14 +623,15 @@ async function markdownRender(options?: MarkdownIt.Options) {
 		const cssPath = path.join(__dirname, '../css/fence.css');
 		const defaultStyles = await fs.promises.readFile(cssPath, 'utf8');
 
-		// 主题检测逻辑：优先使用 frontmatter 中的 theme 配置，否则使用 prefers-color-scheme
 		const frontmatterTheme = env.frontmatter?.theme as string | undefined;
-		const themeClass = frontmatterTheme === 'dark' ? 'vscode-dark' : 
-		                   frontmatterTheme === 'light' ? 'vscode-light' : 
-		                   ''; // 空字符串时使用 prefers-color-scheme 在运行时检测
-		const mermaidThemeSetting = frontmatterTheme === 'dark' ? 'dark' : 
-		                            frontmatterTheme === 'light' ? 'light' : 
-		                            'auto'; // auto 将在运行时检测
+		const forceLightTheme = options?.forceLightTheme && frontmatterTheme === undefined;
+		const effectiveTheme = forceLightTheme ? 'light' : frontmatterTheme;
+		const themeClass = effectiveTheme === 'dark' ? 'vscode-dark' : 
+		                   effectiveTheme === 'light' ? 'vscode-light' : 
+		                   '';
+		const mermaidThemeSetting = effectiveTheme === 'dark' ? 'dark' : 
+		                            effectiveTheme === 'light' ? 'light' : 
+		                            'auto';
 
 		// 构建完整的 HTML 文件
 		const fullHtml = `<!DOCTYPE html>
