@@ -620,6 +620,15 @@ async function markdownRender(options?: MarkdownIt.Options) {
 		const cssPath = path.join(__dirname, '../css/fence.css');
 		const defaultStyles = await fs.promises.readFile(cssPath, 'utf8');
 
+		// 主题检测逻辑：优先使用 frontmatter 中的 theme 配置，否则使用 prefers-color-scheme
+		const frontmatterTheme = env.frontmatter?.theme as string | undefined;
+		const themeClass = frontmatterTheme === 'dark' ? 'vscode-dark' : 
+		                   frontmatterTheme === 'light' ? 'vscode-light' : 
+		                   ''; // 空字符串时使用 prefers-color-scheme 在运行时检测
+		const mermaidThemeSetting = frontmatterTheme === 'dark' ? 'dark' : 
+		                            frontmatterTheme === 'light' ? 'light' : 
+		                            'auto'; // auto 将在运行时检测
+
 		// 构建完整的 HTML 文件
 		const fullHtml = `<!DOCTYPE html>
 <html>
@@ -630,7 +639,7 @@ async function markdownRender(options?: MarkdownIt.Options) {
 	<style>${defaultStyles}</style>
 	${markdownStyleLinks}
 </head>
-<body>
+<body${themeClass ? ` class="${themeClass}"` : ''}>
 	${newHtmlContent}
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -638,11 +647,12 @@ async function markdownRender(options?: MarkdownIt.Options) {
 	<script type="module">
 	import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
 	window.mermaid = mermaid;
+	const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+	const bodyClass = document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast');
+	const useDarkTheme = '${mermaidThemeSetting}' === 'dark' || ('${mermaidThemeSetting}' === 'auto' && (prefersDark || bodyClass));
 	mermaid.initialize({
 	    startOnLoad: false,
-	    theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
-	        ? 'dark'
-	        : 'default'
+	    theme: useDarkTheme ? 'dark' : 'default'
 	  });
 	await mermaid.run({
   querySelector: '.language-mermaid',
