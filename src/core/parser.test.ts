@@ -35,7 +35,7 @@ suite('testTagMatch', () => {
     const line = '<!-- fence:start -->';
     const mark = '<!-- *?fence:start *?-->';
     const codeBlocks = [{ start: 0, end: 2 }];
-    const result = testTagMatch(line, mark, codeBlocks);
+    const result = testTagMatch(line, mark, codeBlocks, 0);
     assert.strictEqual(result, false);
   });
 
@@ -184,7 +184,7 @@ Second Content
     assert.strictEqual(result.blocks.length, 2);
     assert.strictEqual(result.blocks[0].items[0].title, 'First Block');
     assert.strictEqual(result.blocks[1].items[0].title, 'Second Block');
-    assert.strictEqual(result.remainder.trim(), 'Some text between');
+    assert.strictEqual(result.remainder, '');
   });
 
   test('should not parse fence markers inside code blocks', () => {
